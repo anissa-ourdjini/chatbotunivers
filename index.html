@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Astronomie - Univers Explorer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌌 Univers Explorer - Chatbot Astronomie</h1>
+            <p>Découvrez l'univers à travers des conversations interactives</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Section Chatbot -->
+            <div class="chatbot-section">
+                <div class="chat-header">
+                    <h2>💬 Assistant Astronomie</h2>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot-message">
+                        <p>👋 Bienvenue! Je suis votre assistant astronomique. Vous pouvez me poser des questions sur les planètes, étoiles, galaxies, et bien plus. Que voulez-vous savoir?</p>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input 
+                        type="text" 
+                        id="userInput" 
+                        class="chat-input" 
+                        placeholder="Posez votre question sur l'astronomie..."
+                        autocomplete="off"
+                    >
+                    <button id="sendBtn" class="send-btn">Envoyer</button>
+                </div>
+                <div class="quick-questions">
+                    <h4>Questions rapides:</h4>
+                    <div class="quick-buttons">
+                        <button class="quick-btn" onclick="askQuestion('Parle-moi des planètes du système solaire')">🪐 Planètes</button>
+                        <button class="quick-btn" onclick="askQuestion('Qu\'est-ce qu\'une galaxie?')">🌀 Galaxies</button>
+                        <button class="quick-btn" onclick="askQuestion('Comment fonctionne une étoile?')">⭐ Étoiles</button>
+                        <button class="quick-btn" onclick="askQuestion('Explique-moi la Lune')">🌙 Lune</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Visualisation -->
+            <div class="visualization-section">
+                <div class="viz-header">
+                    <h2>🗺️ Cartes de l'Univers</h2>
+                </div>
+                
+                <!-- Onglets -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="showTab('solar-system')">Système Solaire</button>
+                    <button class="tab-btn" onclick="showTab('planets')">Planètes Détaillées</button>
+                    <button class="tab-btn" onclick="showTab('universe')">Univers</button>
+                </div>
+
+                <!-- Contenu des onglets -->
+                <div id="solar-system" class="tab-content active">
+                    <div class="solar-system">
+                        <div class="sun"></div>
+                        <div class="orbit orbit-mercury">
+                            <div class="planet mercury" title="Mercure"></div>
+                        </div>
+                        <div class="orbit orbit-venus">
+                            <div class="planet venus" title="Vénus"></div>
+                        </div>
+                        <div class="orbit orbit-earth">
+                            <div class="planet earth" title="Terre"></div>
+                        </div>
+                        <div class="orbit orbit-mars">
+                            <div class="planet mars" title="Mars"></div>
+                        </div>
+                        <div class="orbit orbit-jupiter">
+                            <div class="planet jupiter" title="Jupiter"></div>
+                        </div>
+                        <div class="orbit orbit-saturn">
+                            <div class="planet saturn" title="Saturne"></div>
+                        </div>
+                        <div class="orbit orbit-uranus">
+                            <div class="planet uranus" title="Uranus"></div>
+                        </div>
+                        <div class="orbit orbit-neptune">
+                            <div class="planet neptune" title="Neptune"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="planets" class="tab-content">
+                    <div class="planets-grid">
+                        <div class="planet-card" onclick="showPlanetInfo('mercure')">
+                            <div class="planet-visual mercury"></div>
+                            <h3>Mercure</h3>
+                            <p>La plus proche du Soleil</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('venus')">
+                            <div class="planet-visual venus"></div>
+                            <h3>Vénus</h3>
+                            <p>La plus chaude</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('terre')">
+                            <div class="planet-visual earth"></div>
+                            <h3>Terre</h3>
+                            <p>Notre maison</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('mars')">
+                            <div class="planet-visual mars"></div>
+                            <h3>Mars</h3>
+                            <p>La planète rouge</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('jupiter')">
+                            <div class="planet-visual jupiter"></div>
+                            <h3>Jupiter</h3>
+                            <p>La géante gazeuse</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('saturne')">
+                            <div class="planet-visual saturn"></div>
+                            <h3>Saturne</h3>
+                            <p>Les anneaux majestueux</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('uranus')">
+                            <div class="planet-visual uranus"></div>
+                            <h3>Uranus</h3>
+                            <p>Géante de glace</p>
+                        </div>
+                        <div class="planet-card" onclick="showPlanetInfo('neptune')">
+                            <div class="planet-visual neptune"></div>
+                            <h3>Neptune</h3>
+                            <p>La plus éloignée</p>
+                        </div>
+                    </div>
+                    <div id="planetInfoModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closePlanetInfo()">&times;</span>
+                            <div id="planetInfoContent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="universe" class="tab-content">
+                    <div class="universe-viz">
+                        <h3>La Voie Lactée</h3>
+                        <svg viewBox="0 0 600 400" class="galaxy-svg">
+                            <!-- Bras spiral -->
+                            <path d="M 300 200 Q 350 150 400 180 T 450 250" stroke="rgba(255,200,100,0.6)" stroke-width="30" fill="none" filter="url(#glow)"/>
+                            <path d="M 300 200 Q 250 150 200 180 T 150 250" stroke="rgba(255,200,100,0.6)" stroke-width="30" fill="none" filter="url(#glow)"/>
+                            <path d="M 300 200 Q 350 250 400 220 T 450 150" stroke="rgba(200,150,255,0.6)" stroke-width="30" fill="none" filter="url(#glow)"/>
+                            <path d="M 300 200 Q 250 250 200 220 T 150 150" stroke="rgba(200,150,255,0.6)" stroke-width="30" fill="none" filter="url(#glow)"/>
+                            
+                            <!-- Noyau galactique -->
+                            <circle cx="300" cy="200" r="40" fill="rgba(255,255,100,0.8)" filter="url(#glow)"/>
+                            <circle cx="300" cy="200" r="35" fill="rgba(255,255,150,0.6)"/>
+                            
+                            <!-- Étoiles -->
+                            <circle cx="250" cy="150" r="2" fill="white" opacity="0.8"/>
+                            <circle cx="350" cy="150" r="2" fill="white" opacity="0.8"/>
+                            <circle cx="280" cy="220" r="1.5" fill="white" opacity="0.7"/>
+                            <circle cx="320" cy="240" r="1.5" fill="white" opacity="0.7"/>
+                            <circle cx="200" cy="180" r="2" fill="white" opacity="0.8"/>
+                            <circle cx="400" cy="220" r="2" fill="white" opacity="0.8"/>
+                            
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                        </svg>
+                        <p class="galaxy-info">La Voie Lactée est notre galaxie spirale contenant environ 100-200 milliards d'étoiles, dont notre Soleil.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
