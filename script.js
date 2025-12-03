@@ -555,7 +555,88 @@ document.addEventListener('DOMContentLoaded', () => {
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
+    // Précharger et appliquer des images pertinentes pour le site (planètes, concepts, FAQ)
+    prefetchAllImages();
 });
+
+// Précharge les images pour l'ensemble du site et applique aux éléments visuels
+async function prefetchAllImages() {
+    try {
+        const queries = new Set();
+
+        // Planètes: utiliser le nom affiché
+        for (const [key, p] of Object.entries(astronomyKnowledge.planetes)) {
+            if (p.nom) queries.add(p.nom);
+            else queries.add(key);
+        }
+
+        // Concepts
+        for (const [key, c] of Object.entries(astronomyKnowledge.concepts)) {
+            if (c && c.text) queries.add(key.replace(/_/g, ' '));
+        }
+
+        // Questions fréquentes (utiliser la clé)
+        for (const q of Object.keys(astronomyKnowledge.questions_frequentes)) {
+            queries.add(q);
+        }
+
+        const imageMap = {};
+        for (const q of queries) {
+            try {
+                const url = await fetchImageForQuery(q);
+                if (url) imageMap[q.toLowerCase()] = url;
+            } catch (err) {
+                // ignore
+            }
+        }
+
+        // Appliquer aux objets de connaissance
+        for (const [key, p] of Object.entries(astronomyKnowledge.planetes)) {
+            const q = (p.nom || key).toLowerCase();
+            if (imageMap[q]) p.image = imageMap[q];
+        }
+        for (const [key, c] of Object.entries(astronomyKnowledge.concepts)) {
+            const q = key.replace(/_/g, ' ').toLowerCase();
+            if (imageMap[q]) c.image = imageMap[q];
+        }
+        for (const [k, a] of Object.entries(astronomyKnowledge.questions_frequentes)) {
+            const q = k.toLowerCase();
+            if (imageMap[q]) a.image = imageMap[q];
+        }
+
+        // Mettre à jour les cartes de planètes dans le DOM
+        document.querySelectorAll('.planet-card').forEach(card => {
+            const titleEl = card.querySelector('h3');
+            if (!titleEl) return;
+            const name = titleEl.textContent.trim().toLowerCase();
+            const img = imageMap[name];
+            const visual = card.querySelector('.planet-visual');
+            if (img && visual) {
+                visual.style.backgroundImage = `url('${img}')`;
+                visual.style.backgroundSize = 'cover';
+                visual.style.backgroundPosition = 'center';
+                visual.style.borderRadius = '8px';
+            }
+        });
+
+        // Option: header background
+        try {
+            const headerImg = imageMap['voie lactée'] || imageMap['univers'] || imageMap['système solaire'];
+            if (headerImg) {
+                const header = document.querySelector('.header');
+                if (header) {
+                    header.style.backgroundImage = `url('${headerImg}')`;
+                    header.style.backgroundSize = 'cover';
+                    header.style.backgroundPosition = 'center';
+                    header.style.color = '#fff';
+                }
+            }
+        } catch (err) {}
+
+    } catch (err) {
+        console.warn('prefetchAllImages failed:', err && err.toString());
+    }
+}
 
 // Gestion des onglets
 function showTab(tabName) {

@@ -39,6 +39,32 @@ header h1 {
 header p {
     font-size: 1.1em;
     color: #b0b0b0;
+    margin-bottom: 15px;
+}
+
+.header-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-3d {
+    background: linear-gradient(135deg, #64c8ff, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-3d:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(100, 200, 255, 0.3);
 }
 
 .main-content {

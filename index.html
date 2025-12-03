@@ -60,32 +60,8 @@
 
                 <!-- Contenu des onglets -->
                 <div id="solar-system" class="tab-content active">
-                    <div class="solar-system">
-                        <div class="sun"></div>
-                        <div class="orbit orbit-mercury">
-                            <div class="planet mercury" title="Mercure"></div>
-                        </div>
-                        <div class="orbit orbit-venus">
-                            <div class="planet venus" title="Vénus"></div>
-                        </div>
-                        <div class="orbit orbit-earth">
-                            <div class="planet earth" title="Terre"></div>
-                        </div>
-                        <div class="orbit orbit-mars">
-                            <div class="planet mars" title="Mars"></div>
-                        </div>
-                        <div class="orbit orbit-jupiter">
-                            <div class="planet jupiter" title="Jupiter"></div>
-                        </div>
-                        <div class="orbit orbit-saturn">
-                            <div class="planet saturn" title="Saturne"></div>
-                        </div>
-                        <div class="orbit orbit-uranus">
-                            <div class="planet uranus" title="Uranus"></div>
-                        </div>
-                        <div class="orbit orbit-neptune">
-                            <div class="planet neptune" title="Neptune"></div>
-                        </div>
+                    <div id="solar3d" style="width:100%;height:520px;">
+                        <!-- Three.js scene will be inserted here -->
                     </div>
                 </div>
 
@@ -179,6 +155,12 @@
         </div>
     </div>
 
+    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+    <script type="module" src="controls-module.js"></script>
+    <script src="https://unpkg.com/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="controls-shim.js"></script>
     <script src="script.js"></script>
+    <script src="debug.js"></script>
+    <script src="viz3d.js"></script>
 </body>
 </html>
