@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Chatbot Univers Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d0520 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(100, 200, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(100, 200, 255, 0.3);
+        }
+        
+        h1 {
+            background: linear-gradient(90deg, #64c8ff, #8b5cf6, #ff006e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .test-section {
+            background: rgba(20, 25, 50, 0.8);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #64c8ff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .test-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .test-item {
+            background: rgba(50, 100, 150, 0.2);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .test-item:hover {
+            background: rgba(100, 200, 255, 0.2);
+            border-color: #64c8ff;
+            transform: translateY(-2px);
+        }
+        
+        .test-item h3 {
+            color: #64c8ff;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        
+        .test-item p {
+            color: #b0b0b0;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .test-item code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #90ff90;
+        }
+        
+        .test-item button {
+            background: linear-gradient(135deg, #64c8ff, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .test-item button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 200, 255, 0.3);
+        }
+        
+        .info-box {
+            background: rgba(100, 200, 150, 0.1);
+            border-left: 3px solid #64c8ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box strong {
+            color: #64c8ff;
+        }
+        
+        .features {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #64c8ff;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .button-group a {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px;
+            background: linear-gradient(135deg, #64c8ff, #8b5cf6);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .button-group a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(100, 200, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌌 Test Chatbot Univers Explorer</h1>
+            <p>Documentation et Guide de Teste</p>
+        </header>
+        
+        <!-- Section Info -->
+        <div class="test-section">
+            <h2>📋 À propos de ce Chatbot</h2>
+            <div class="info-box">
+                <strong>✨ Univers Explorer</strong> est un chatbot astronomique intelligent qui:
+                <ul class="features">
+                    <li>Répond à vos questions sur l'astronomie</li>
+                    <li>Affiche une image pour chaque réponse</li>
+                    <li>Reconnaît les variantes de questions</li>
+                    <li>Couvre 37+ catégories de réponses</li>
+                    <li>Fonctionne en français</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Test de Planètes -->
+        <div class="test-section">
+            <h2>🪐 Test - Planètes du Système Solaire</h2>
+            <p style="color: #b0b0b0; margin-bottom: 15px;">
+                Chaque question affichera des informations détaillées sur une planète avec une image correspondante.
+            </p>
+            <div class="test-items">
+                <div class="test-item">
+                    <h3>Mercure</h3>
+                    <p>La plus petite et plus rapide</p>
+                    <code>Parle-moi de Mercure</code>
+                    <button onclick="testMessage('Parle-moi de Mercure')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Vénus</h3>
+                    <p>La plus chaude</p>
+                    <code>Parle-moi de Vénus</code>
+                    <button onclick="testMessage('Parle-moi de Vénus')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Terre</h3>
+                    <p>Notre maison</p>
+                    <code>Parle-moi de la Terre</code>
+                    <button onclick="testMessage('Parle-moi de la Terre')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Mars</h3>
+                    <p>La planète rouge</p>
+                    <code>Parle-moi de Mars</code>
+                    <button onclick="testMessage('Parle-moi de Mars')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Jupiter</h3>
+                    <p>La géante gazeuse</p>
+                    <code>Parle-moi de Jupiter</code>
+                    <button onclick="testMessage('Parle-moi de Jupiter')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Saturne</h3>
+                    <p>Les anneaux majestueux</p>
+                    <code>Parle-moi de Saturne</code>
+                    <button onclick="testMessage('Parle-moi de Saturne')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Uranus</h3>
+                    <p>Géante de glace</p>
+                    <code>Parle-moi d'Uranus</code>
+                    <button onclick="testMessage('Parle-moi d\'Uranus')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Neptune</h3>
+                    <p>La plus éloignée</p>
+                    <code>Parle-moi de Neptune</code>
+                    <button onclick="testMessage('Parle-moi de Neptune')">Tester</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test de Concepts -->
+        <div class="test-section">
+            <h2>✨ Test - Concepts Astronomiques</h2>
+            <p style="color: #b0b0b0; margin-bottom: 15px;">
+                Testez les concepts astronomiques qui obtiennent aussi des images.
+            </p>
+            <div class="test-items">
+                <div class="test-item">
+                    <h3>Galaxie</h3>
+                    <p>Système de milliards d'étoiles</p>
+                    <code>C'est quoi une galaxie?</code>
+                    <button onclick="testMessage('C\'est quoi une galaxie?')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Étoile</h3>
+                    <p>Boule de plasma lumineux</p>
+                    <code>Comment fonctionne une étoile?</code>
+                    <button onclick="testMessage('Comment fonctionne une étoile?')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Trou Noir</h3>
+                    <p>Région gravitationnelle extrême</p>
+                    <code>Explique-moi les trous noirs</code>
+                    <button onclick="testMessage('Explique-moi les trous noirs')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Nébuleuse</h3>
+                    <p>Nuage de gaz et poussière</p>
+                    <code>C'est quoi une nébuleuse?</code>
+                    <button onclick="testMessage('C\'est quoi une nébuleuse?')">Tester</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test de Questions Fréquentes -->
+        <div class="test-section">
+            <h2>❓ Test - Questions Fréquentes</h2>
+            <p style="color: #b0b0b0; margin-bottom: 15px;">
+                Testez les questions les plus posées avec images.
+            </p>
+            <div class="test-items">
+                <div class="test-item">
+                    <h3>Nombre de Planètes</h3>
+                    <p>Combien existe-t-il de planètes?</p>
+                    <code>Combien de planètes y a-t-il?</code>
+                    <button onclick="testMessage('Combien de planètes y a-t-il?')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Plus Grande Planète</h3>
+                    <p>Laquelle est la plus grande?</p>
+                    <code>Quelle est la plus grande planète?</code>
+                    <button onclick="testMessage('Quelle est la plus grande planète?')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Plus Proche du Soleil</h3>
+                    <p>Quelle est la plus proche?</p>
+                    <code>Quelle est la plus proche du Soleil?</code>
+                    <button onclick="testMessage('Quelle est la plus proche du Soleil?')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Plus Éloignée du Soleil</h3>
+                    <p>Quelle est la plus éloignée?</p>
+                    <code>Quelle est la plus éloignée du Soleil?</code>
+                    <button onclick="testMessage('Quelle est la plus éloignée du Soleil?')">Tester</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test Général -->
+        <div class="test-section">
+            <h2>🎯 Test - Mots-Clés Génériques</h2>
+            <p style="color: #b0b0b0; margin-bottom: 15px;">
+                Testez avec des mots-clés génériques pour voir la flexibilité.
+            </p>
+            <div class="test-items">
+                <div class="test-item">
+                    <h3>Soleil</h3>
+                    <p>L'étoile du système solaire</p>
+                    <code>Parle-moi du Soleil</code>
+                    <button onclick="testMessage('Parle-moi du Soleil')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Lune</h3>
+                    <p>Le satellite de la Terre</p>
+                    <code>Explique-moi la Lune</code>
+                    <button onclick="testMessage('Explique-moi la Lune')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Univers</h3>
+                    <p>L'ensemble de tout ce qui existe</p>
+                    <code>Parle-moi de l'univers</code>
+                    <button onclick="testMessage('Parle-moi de l\'univers')">Tester</button>
+                </div>
+                
+                <div class="test-item">
+                    <h3>Voie Lactée</h3>
+                    <p>Notre galaxie spirale</p>
+                    <code>C'est quoi la Voie Lactée?</code>
+                    <button onclick="testMessage('C\'est quoi la Voie Lactée?')">Tester</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="test-section">
+            <h2>🚀 Commencer</h2>
+            <p style="color: #b0b0b0; margin-bottom: 15px;">
+                Cliquez sur un des boutons de test ci-dessus, ou allez à la page principale pour poser vos propres questions.
+            </p>
+            <div class="button-group">
+                <a href="index.html">↳ Retour au Chatbot Principal</a>
+                <a href="README.md" download>📥 Télécharger Documentation</a>
+            </div>
+        </div>
+        
+        <!-- Résumé des Améliorations -->
+        <div class="test-section">
+            <h2>✨ Résumé des Améliorations</h2>
+            <div class="info-box">
+                <strong>Nouvelles fonctionnalités:</strong>
+                <ul class="features">
+                    <li><strong>Images Unsplash</strong> - Chaque réponse a une image</li>
+                    <li><strong>Algorithme Avancé</strong> - Reconnaissance avec distance de Levenshtein</li>
+                    <li><strong>37+ Réponses</strong> - Couverture complète de l'astronomie</li>
+                    <li><strong>Design Moderne</strong> - Interface élégante et responsive</li>
+                    <li><strong>Optimisé pour Mobile</strong> - Fonctionne sur tous les appareils</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function testMessage(question) {
+            // Ouvrir la page principale et simuler la question
+            window.location.href = 'index.html';
+            
+            // Note: La question sera posée dans le chatbot
+            // (ou vous pouvez l'ajouter en session storage)
+            sessionStorage.setItem('testQuestion', question);
+        }
+    </script>
+</body>
+</html>

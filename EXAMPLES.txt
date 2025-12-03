@@ -1,0 +1,184 @@
+═══════════════════════════════════════════════════════════════════════════════
+               EXEMPLES DE QUESTIONS AVEC IMAGES
+═══════════════════════════════════════════════════════════════════════════════
+
+Chaque question ci-dessous affichera une RÉPONSE + UNE IMAGE correspondante
+
+───────────────────────────────────────────────────────────────────────────────
+PLANÈTES (avec images de chaque planète)
+───────────────────────────────────────────────────────────────────────────────
+
+1. Parle-moi de Mercure
+   → Image: Mercure
+   → Texte: Infos détaillées sur Mercure
+
+2. Parle-moi de Vénus
+   → Image: Vénus
+   → Texte: La plus chaude des planètes
+
+3. Parle-moi de la Terre
+   → Image: Terre
+   → Texte: Notre planète natale
+
+4. Parle-moi de Mars
+   → Image: Mars
+   → Texte: La planète rouge
+
+5. Parle-moi de Jupiter
+   → Image: Jupiter
+   → Texte: La plus grande du système solaire
+
+6. Parle-moi de Saturne
+   → Image: Saturne
+   → Texte: Les magnifiques anneaux
+
+7. Parle-moi d'Uranus
+   → Image: Uranus
+   → Texte: La géante qui roule
+
+8. Parle-moi de Neptune
+   → Image: Neptune
+   → Texte: La plus éloignée et venteuse
+
+───────────────────────────────────────────────────────────────────────────────
+CONCEPTS ASTRONOMIQUES (avec images correspondantes)
+───────────────────────────────────────────────────────────────────────────────
+
+9. C'est quoi une galaxie?
+   → Image: Galaxie spirale
+   → Texte: Définition et types
+
+10. Comment fonctionne une étoile?
+    → Image: Étoile
+    → Texte: Fusion nucléaire et cycle de vie
+
+11. Explique-moi les trous noirs
+    → Image: Trou noir
+    → Texte: Gravité extrême et horizon des événements
+
+12. C'est quoi une nébuleuse?
+    → Image: Nébuleuse colorée
+    → Texte: Nuages de gaz et poussière
+
+13. Parle-moi d'une constellation
+    → Image: Constellation
+    → Texte: Groupes d'étoiles dans le ciel
+
+14. Qu'est-ce qu'une comète?
+    → Image: Comète avec queue
+    → Texte: Petit objet gelé avec queue
+
+───────────────────────────────────────────────────────────────────────────────
+QUESTIONS FRÉQUENTES (avec images du système solaire)
+───────────────────────────────────────────────────────────────────────────────
+
+15. Combien de planètes y a-t-il?
+    → Image: Système solaire
+    → Texte: 8 planètes (Pluton reclassifiée)
+
+16. Quelle est la plus grande planète?
+    → Image: Jupiter
+    → Texte: Jupiter, géante gazeuse
+
+17. Quelle est la plus proche du Soleil?
+    → Image: Mercure
+    → Texte: Mercure, la plus rapide
+
+18. Quelle est la plus éloignée du Soleil?
+    → Image: Neptune
+    → Texte: Neptune, système solaire
+
+19. Combien de lunes possède la Terre?
+    → Image: Lune
+    → Texte: 1 seule lune naturelle
+
+20. Qu'est-ce que Pluton?
+    → Image: Pluton
+    → Texte: Planète naine de la ceinture de Kuiper
+
+21. Quel est l'âge du Soleil?
+    → Image: Soleil
+    → Texte: 4,6 milliards d'années
+
+───────────────────────────────────────────────────────────────────────────────
+SUJETS GÉNÉRIQUES (avec images thématiques)
+───────────────────────────────────────────────────────────────────────────────
+
+22. Parle-moi du Soleil
+    → Image: Soleil
+    → Texte: Étoile centrale, composition, température
+
+23. Explique-moi la Lune
+    → Image: Lune
+    → Texte: Satellite naturel, marées, exploration
+
+24. Parle-moi de l'univers
+    → Image: Univers - cosmos
+    → Texte: Tout ce qui existe, âge, taille observable
+
+25. C'est quoi la Voie Lactée?
+    → Image: Voie Lactée spirale
+    → Texte: Notre galaxie, 100-200 milliards d'étoiles
+
+26. Parle-moi du système solaire
+    → Image: Système solaire complet
+    → Texte: Composition, formation, structure
+
+27. Qu'est-ce qu'un satellite?
+    → Image: Lune et satellites
+    → Texte: Objets orbitant une planète
+
+28. C'est quoi un astéroïde?
+    → Image: Astéroïde
+    → Texte: Petit corps rocheux entre Mars et Jupiter
+
+29. Explique une éclipse
+    → Image: Éclipse
+    → Texte: Objet céleste cache un autre
+
+30. Parle-moi d'une nébuleuse
+    → Image: Nébuleuse
+    → Texte: Lieu de formation des étoiles
+
+───────────────────────────────────────────────────────────────────────────────
+VARIANTES (même question, formulation différente)
+───────────────────────────────────────────────────────────────────────────────
+
+EXEMPLE: Questions sur Jupiter
+
+31. "Parle-moi de Jupiter"
+    ✓ Reconnaissance: PARFAIT (score 1.0)
+
+32. "Jupiter c'est quoi?"
+    ✓ Reconnaissance: BON (score ~0.8)
+
+33. "Qui est Jupiter?"
+    ✓ Reconnaissance: ACCEPTABLE (score ~0.7)
+
+34. "Jupiterr" (typo)
+    ✓ Reconnaissance: BON (distance Levenshtein)
+
+35. "Juppiter" (typo différent)
+    ✓ Reconnaissance: ACCEPTABLE
+
+───────────────────────────────────────────────────────────────────────────────
+RÉSUMÉ DU SYSTÈME
+───────────────────────────────────────────────────────────────────────────────
+
+Total de questions testables: 35+
+
+Pour chaque question:
+✓ Affichage d'une IMAGE correspondante
+✓ Affichage d'un TEXTE descriptif
+✓ Animation fluide et responsive
+✓ Chargement rapide depuis Unsplash
+
+Comment tester:
+1. Ouvrir index.html
+2. Taper une question
+3. Appuyer sur Entrée
+4. Voir l'image + la réponse
+
+───────────────────────────────────────────────────────────────────────────────
+
+Prêt à explorer l'univers? 🚀

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Images - Chatbot Astronomie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d0520 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #64c8ff;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .test-card {
+            background: rgba(20, 25, 50, 0.8);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .test-card:hover {
+            border-color: #64c8ff;
+            box-shadow: 0 8px 20px rgba(100, 200, 255, 0.2);
+        }
+        
+        .test-card h3 {
+            color: #64c8ff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .test-card p {
+            font-size: 0.9em;
+            color: #b0b0b0;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .test-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .test-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(100, 200, 255, 0.3);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .status.ok {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+        
+        .status.loading {
+            background: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+        
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+        
+        .summary {
+            background: rgba(100, 200, 255, 0.1);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .summary h2 {
+            color: #64c8ff;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(100, 200, 255, 0.1);
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .summary-item strong {
+            color: #64c8ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ TEST SYSTÈME D'IMAGES</h1>
+        <p class="subtitle">Vérification des images pour chaque catégorie</p>
+        
+        <div class="test-grid" id="testGrid"></div>
+        
+        <div class="summary">
+            <h2>📊 Résumé des Tests</h2>
+            <div class="summary-item">
+                <strong>Planètes testées:</strong>
+                <span id="planeteCount">--</span>
+            </div>
+            <div class="summary-item">
+                <strong>Concepts testés:</strong>
+                <span id="conceptCount">--</span>
+            </div>
+            <div class="summary-item">
+                <strong>Mots-clés testés:</strong>
+                <span id="keywordCount">--</span>
+            </div>
+            <div class="summary-item">
+                <strong>Total images:</strong>
+                <span id="totalCount">--</span>
+            </div>
+            <div class="summary-item">
+                <strong>Images chargées:</strong>
+                <span id="loadedCount">--</span>
+            </div>
+            <div class="summary-item">
+                <strong>Taux de réussite:</strong>
+                <span id="successRate">--</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Import des données depuis script.js
+        const testImages = {
+            planetes: {
+                mercure: { nom: "Mercure", image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=400&h=300&fit=crop" },
+                venus: { nom: "Vénus", image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop" },
+                terre: { nom: "Terre", image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop" },
+                mars: { nom: "Mars", image: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=400&h=300&fit=crop" },
+                jupiter: { nom: "Jupiter", image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=300&fit=crop" },
+                saturne: { nom: "Saturne", image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=400&h=300&fit=crop" },
+                uranus: { nom: "Uranus", image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=300&fit=crop" },
+                neptune: { nom: "Neptune", image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=400&h=300&fit=crop" }
+            },
+            concepts: {
+                galaxie: { nom: "Galaxie", image: "https://images.unsplash.com/photo-1462331940975-31f4c1838cda?w=400&h=300&fit=crop" },
+                etoile: { nom: "Étoile", image: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=400&h=300&fit=crop" },
+                trou_noir: { nom: "Trou noir", image: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=400&h=300&fit=crop" },
+                nebuleuse: { nom: "Nébuleuse", image: "https://images.unsplash.com/photo-1542173159-c1c4a4d5b2c5?w=400&h=300&fit=crop" },
+                lune: { nom: "Lune", image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=400&h=300&fit=crop" },
+                constellation: { nom: "Constellation", image: "https://images.unsplash.com/photo-1462331940975-31f4c1838cda?w=400&h=300&fit=crop" },
+                eclipse: { nom: "Éclipse", image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop" },
+                comete: { nom: "Comète", image: "https://images.unsplash.com/photo-1462331940975-31f4c1838cda?w=400&h=300&fit=crop" },
+                asteroide: { nom: "Astéroïde", image: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=400&h=300&fit=crop" },
+                anneau_planetaire: { nom: "Anneau planétaire", image: "https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=400&h=300&fit=crop" }
+            },
+            keywords: {
+                soleil: "Soleil",
+                lune: "Lune",
+                univers: "Univers",
+                galaxie: "Galaxie",
+                etoile: "Étoile",
+                planete: "Planète",
+                nebuleuse: "Nébuleuse",
+                comete: "Comète",
+                asteroide: "Astéroïde",
+                exoplanete: "Exoplanète",
+                constellation: "Constellation",
+                eclipse: "Éclipse",
+                annee_lumiere: "Année-lumière",
+                telescope: "Télescope",
+                astronaute: "Astronaute"
+            }
+        };
+
+        let loadedCount = 0;
+        const grid = document.getElementById('testGrid');
+
+        // Test planètes
+        Object.entries(testImages.planetes).forEach(([key, data]) => {
+            createTestCard(data.nom, 'Planète', data.image, '🪐');
+        });
+
+        // Test concepts
+        Object.entries(testImages.concepts).forEach(([key, data]) => {
+            createTestCard(data.nom, 'Concept', data.image, '✨');
+        });
+
+        // Afficher les stats
+        const totalTests = Object.keys(testImages.planetes).length + 
+                          Object.keys(testImages.concepts).length + 
+                          Object.keys(testImages.keywords).length;
+
+        document.getElementById('planeteCount').textContent = Object.keys(testImages.planetes).length + '/8';
+        document.getElementById('conceptCount').textContent = Object.keys(testImages.concepts).length + '/10';
+        document.getElementById('keywordCount').textContent = Object.keys(testImages.keywords).length + ' mots-clés';
+        document.getElementById('totalCount').textContent = totalTests;
+
+        function createTestCard(title, category, imageUrl, emoji) {
+            const card = document.createElement('div');
+            card.className = 'test-card';
+            
+            const statusEl = document.createElement('span');
+            statusEl.className = 'status loading';
+            statusEl.textContent = '⏳ Chargement...';
+            
+            card.innerHTML = `
+                <h3>${emoji} ${title}</h3>
+                <p><strong>Type:</strong> ${category}</p>
+                <p><strong>URL:</strong></p>
+                <code style="font-size: 0.75em; color: #888; word-break: break-all;">${imageUrl.substring(0, 50)}...</code>
+                <img src="${imageUrl}" alt="${title}" class="test-image" onload="updateStatus(this, true)" onerror="updateStatus(this, false)">
+            `;
+            
+            card.appendChild(statusEl);
+            grid.appendChild(card);
+            
+            // Compter les chargements réussis
+            const img = card.querySelector('img');
+            img.addEventListener('load', () => {
+                loadedCount++;
+                updateStats();
+            });
+        }
+
+        function updateStatus(imgEl, success) {
+            const status = imgEl.closest('.test-card').querySelector('.status');
+            if (success) {
+                status.className = 'status ok';
+                status.textContent = '✅ Chargée';
+            } else {
+                status.className = 'status error';
+                status.textContent = '❌ Erreur';
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('loadedCount').textContent = loadedCount;
+            const total = parseInt(document.getElementById('totalCount').textContent);
+            const rate = Math.round((loadedCount / total) * 100);
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        // Stats initiales
+        updateStats();
+    </script>
+</body>
+</html>
