@@ -1,6 +1,14 @@
-// Simple 3D Solar System using Three.js
-// Creates orbiting planets, clickable to show details via existing showPlanetInfo
+/**
+ * 🌌 3D Universe Visualization Ultra Amélioré
+ * Planètes détaillées + Voie Lactée + Système Solaire Complet
+ */
+
 (function(){
+    let scene, camera, renderer, controls, planets = [], orbits = [];
+    let autoRotate = true;
+    let showLabels = true;
+    let showOrbits = true;
+
     function init() {
         if (typeof THREE === 'undefined') { console.warn('Three.js not loaded'); return; }
         const container = document.getElementById('solar3d');
@@ -9,7 +17,7 @@
         const width = container.clientWidth || window.innerWidth;
         const height = container.clientHeight || 520;
 
-        const scene = new THREE.Scene();
+        scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000010);
 
         const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);

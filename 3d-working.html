@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorateur 3D - Univers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 100;
+            max-width: 300px;
+        }
+
+        .controls h2 {
+            margin-bottom: 15px;
+            color: #00ff88;
+        }
+
+        .controls p {
+            font-size: 12px;
+            margin: 8px 0;
+            color: #ccc;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00ffaa;
+            transform: scale(1.05);
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            max-width: 250px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            background: #ff8787;
+        }
+
+        .planet-btn {
+            font-size: 11px;
+            padding: 8px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="controls">
+        <h2>🌌 Univers 3D</h2>
+        <p><strong>Souris:</strong> Rotation</p>
+        <p><strong>Molette:</strong> Zoom</p>
+        <p><strong>Space:</strong> Pause</p>
+        
+        <div style="margin-top: 15px; border-top: 1px solid #00ff88; padding-top: 10px;">
+            <p style="margin-bottom: 10px;">⭐ Sélectionner une planète:</p>
+            <button class="planet-btn" data-planet="sun">☀️ Soleil</button>
+            <button class="planet-btn" data-planet="mercury">🔴 Mercure</button>
+            <button class="planet-btn" data-planet="venus">🟡 Vénus</button>
+            <button class="planet-btn" data-planet="earth">🔵 Terre</button>
+            <button class="planet-btn" data-planet="mars">🟠 Mars</button>
+            <button class="planet-btn" data-planet="jupiter">🟤 Jupiter</button>
+            <button class="planet-btn" data-planet="saturn">🟨 Saturne</button>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="goBack()">← Retour au Chat</button>
+
+    <div class="info">
+        <div id="planetInfo">
+            <p><strong>Sélectionnez une planète</strong></p>
+            <p>Cliquez sur les boutons à gauche pour plus d'infos</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let animationId;
+        let isPaused = false;
+        let cameraZoom = 1;
+        let cameraX = 0;
+        let cameraY = 0;
+        let selectedPlanet = null;
+
+        const planets = {
+            sun: { x: 0, y: 0, size: 40, color: '#FDB813', speed: 0, distance: 0, name: 'Soleil', info: 'Étoile au centre du système solaire' },
+            mercury: { x: 100, y: 0, size: 8, color: '#8C7853', speed: 0.04, distance: 100, name: 'Mercure', info: 'Planète la plus proche du Soleil' },
+            venus: { x: 150, y: 0, size: 14, color: '#FFC649', speed: 0.015, distance: 150, name: 'Vénus', info: 'Planète la plus chaude' },
+            earth: { x: 200, y: 0, size: 15, color: '#4A90E2', speed: 0.01, distance: 200, name: 'Terre', info: 'Notre planète' },
+            mars: { x: 250, y: 0, size: 12, color: '#E27B58', speed: 0.008, distance: 250, name: 'Mars', info: 'Planète rouge' },
+            jupiter: { x: 350, y: 0, size: 35, color: '#C88B3A', speed: 0.002, distance: 350, name: 'Jupiter', info: 'Géante gazeuse' },
+            saturn: { x: 450, y: 0, size: 30, color: '#FAD5A5', speed: 0.0009, distance: 450, name: 'Saturne', info: 'Planète aux anneaux' }
+        };
+
+        let angle = {};
+        Object.keys(planets).forEach(p => { angle[p] = 0; });
+
+        function drawStars() {
+            for (let i = 0; i < 200; i++) {
+                const x = Math.sin(i) * 10000 + canvas.width / 2;
+                const y = Math.cos(i) * 10000 + canvas.height / 2;
+                const size = Math.random() * 1.5;
+                ctx.fillStyle = '#fff';
+                ctx.globalAlpha = Math.random();
+                ctx.fillRect(x, y, size, size);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawPlanet(name, planet) {
+            if (!isPaused && planet.speed > 0) {
+                angle[name] += planet.speed;
+            }
+
+            const x = Math.cos(angle[name]) * planet.distance;
+            const y = Math.sin(angle[name]) * planet.distance;
+
+            planet.x = x;
+            planet.y = y;
+
+            const screenX = (x * cameraZoom) + canvas.width / 2 + cameraX;
+            const screenY = (y * cameraZoom) + canvas.height / 2 + cameraY;
+
+            // Draw orbit
+            if (planet.distance > 0) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2 + cameraX, canvas.height / 2 + cameraY, planet.distance * cameraZoom, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Draw planet
+            ctx.fillStyle = planet.color;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, planet.size * cameraZoom, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw glow
+            ctx.strokeStyle = planet.color;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, (planet.size + 5) * cameraZoom, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+
+            // Highlight selected
+            if (selectedPlanet === name) {
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, (planet.size + 10) * cameraZoom, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        function animate() {
+            // Clear canvas
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawStars();
+
+            // Draw planets
+            Object.keys(planets).forEach(name => {
+                drawPlanet(name, planets[name]);
+            });
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // Mouse controls
+        let mouseDown = false;
+        let lastX = 0, lastY = 0;
+
+        canvas.addEventListener('mousedown', (e) => {
+            mouseDown = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (mouseDown) {
+                const dx = e.clientX - lastX;
+                const dy = e.clientY - lastY;
+                cameraX += dx;
+                cameraY += dy;
+                lastX = e.clientX;
+                lastY = e.clientY;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            cameraZoom += e.deltaY > 0 ? -0.1 : 0.1;
+            cameraZoom = Math.max(0.1, Math.min(cameraZoom, 3));
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                isPaused = !isPaused;
+            }
+        });
+
+        // Planet selection
+        document.querySelectorAll('.planet-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const planet = e.target.dataset.planet;
+                selectedPlanet = planet;
+                const info = planets[planet];
+                document.getElementById('planetInfo').innerHTML = `
+                    <p><strong>${info.name}</strong></p>
+                    <p>${info.info}</p>
+                    <p style="margin-top: 10px; font-size: 11px; color: #00ff88;">Diamètre: ${(info.size * 2).toFixed(0)} km (échelle réduite)</p>
+                `;
+            });
+        });
+
+        // Responsive
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        animate();
+    </script>
+</body>
+</html>

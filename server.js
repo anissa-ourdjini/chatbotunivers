@@ -18,6 +18,8 @@ const MODEL = process.env.HF_MODEL || 'google/flan-t5-base';
 const PORT = process.env.PORT || 3000;
 const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS_KEY || null;
 const LOCAL_IMAGES_DIR = path.join(__dirname, 'unsplash_images');
+const WIKI_USER_AGENT = process.env.WIKI_USER_AGENT || 'chatbotunivers/1.0 (github.com/anissa-ourdjini)';
+const WIKI_HEADERS = { 'User-Agent': WIKI_USER_AGENT, Accept: 'application/json' };
 
 if (!HF_TOKEN) {
   console.warn('Warning: HF_API_TOKEN not set. Set it in your .env file.');
@@ -119,6 +121,7 @@ app.get('/api/image', async (req, res) => {
         params: {
           action: 'query', format: 'json', list: 'search', srsearch: q, srnamespace: 6, srlimit: 1, origin: '*'
         },
+        headers: WIKI_HEADERS,
         timeout: 10000
       });
       const sdata = fileSearch.data;
@@ -126,6 +129,7 @@ app.get('/api/image', async (req, res) => {
         const title = sdata.query.search[0].title;
         const info = await axios.get('https://commons.wikimedia.org/w/api.php', {
           params: { action: 'query', format: 'json', prop: 'imageinfo', titles: title, iiprop: 'url', origin: '*' },
+          headers: WIKI_HEADERS,
           timeout: 10000
         });
         const pages = info.data && info.data.query && info.data.query.pages;
@@ -139,13 +143,14 @@ app.get('/api/image', async (req, res) => {
         }
       }
     } catch (err) {
-      console.warn('Commons search failed:', err && err.toString());
+      console.warn('Commons search failed:', err && (err.response ? `${err.response.status} ${err.response.statusText}` : err.toString()));
     }
 
     // 3) Try Wikipedia pageimage thumbnail via English Wikipedia
     try {
       const pageSearch = await axios.get('https://en.wikipedia.org/w/api.php', {
         params: { action: 'query', format: 'json', list: 'search', srsearch: q, srnamespace: 0, srlimit: 1, origin: '*' },
+        headers: WIKI_HEADERS,
         timeout: 10000
       });
       const pdata = pageSearch.data;
@@ -153,6 +158,7 @@ app.get('/api/image', async (req, res) => {
         const pageTitle = pdata.query.search[0].title;
         const pageInfo = await axios.get('https://en.wikipedia.org/w/api.php', {
           params: { action: 'query', format: 'json', prop: 'pageimages', titles: pageTitle, pithumbsize: 800, origin: '*' },
+          headers: WIKI_HEADERS,
           timeout: 10000
         });
         const pages = pageInfo.data && pageInfo.data.query && pageInfo.data.query.pages;
@@ -164,7 +170,7 @@ app.get('/api/image', async (req, res) => {
         }
       }
     } catch (err) {
-      console.warn('Wikipedia pageimage search failed:', err && err.toString());
+      console.warn('Wikipedia pageimage search failed:', err && (err.response ? `${err.response.status} ${err.response.statusText}` : err.toString()));
     }
 
     // 4) Give up

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Univers 3D - Exploration Interactive</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100vh;
+            display: block;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            pointer-events: auto;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+        }
+
+        .info-text {
+            font-size: 1.1em;
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            pointer-events: auto;
+            max-width: 350px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-section {
+            margin-bottom: 15px;
+        }
+
+        .control-title {
+            font-size: 0.9em;
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #0066ff, #00d4ff);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+        }
+
+        button.active {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+        }
+
+        .return-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff0066, #ff6600);
+            padding: 12px 25px;
+            font-size: 1em;
+            pointer-events: auto;
+            border-radius: 8px;
+        }
+
+        .return-btn:hover {
+            box-shadow: 0 0 20px rgba(255, 100, 0, 0.8);
+        }
+
+        .planet-info {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            pointer-events: auto;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .planet-info h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .planet-info p {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #00d4ff;
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(10, 14, 39, 0.9);
+            border: 2px solid #ff6600;
+            border-radius: 10px;
+            padding: 15px;
+            pointer-events: auto;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-line {
+            margin: 5px 0;
+            color: #00d4ff;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: auto;
+            z-index: 100;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 212, 255, 0.3);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="ui-overlay">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Chargement de l'univers...</p>
+        </div>
+
+        <button class="return-btn" onclick="returnToChat()">← Retour au Chat</button>
+
+        <div class="stats" id="stats">
+            <div class="stat-line">FPS: <span id="fps">60</span></div>
+            <div class="stat-line">Distance: <span id="distance">0</span> UA</div>
+            <div class="stat-line">Mode: <span id="mode">Orbital</span></div>
+        </div>
+
+        <div class="header">
+            <h1>🌌 Explorateur d'Univers 3D</h1>
+            <div class="info-text">Cliquez sur les planètes pour plus d'infos • Utilisez la souris pour naviguer</div>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <div class="control-title">🪐 Planètes</div>
+                <div class="control-buttons">
+                    <button onclick="focusPlanet('mercure')">Mercure</button>
+                    <button onclick="focusPlanet('venus')">Vénus</button>
+                    <button onclick="focusPlanet('terre')">Terre</button>
+                    <button onclick="focusPlanet('mars')">Mars</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-title">🪐 Géantes</div>
+                <div class="control-buttons">
+                    <button onclick="focusPlanet('jupiter')">Jupiter</button>
+                    <button onclick="focusPlanet('saturne')">Saturne</button>
+                    <button onclick="focusPlanet('uranus')">Uranus</button>
+                    <button onclick="focusPlanet('neptune')">Neptune</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="control-title">🔍 Vue</div>
+                <div class="control-buttons">
+                    <button onclick="resetView()">Système</button>
+                    <button onclick="toggleAnimation()">Animation</button>
+                    <button onclick="zoomOut()">Éloigner</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="planet-info" id="planetInfo">
+            <div>
+                <h3>Sélectionnez une planète</h3>
+                <p>Cliquez sur une planète pour voir ses détails</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const engine = new BABYLON.Engine(canvas, true);
+        let scene, camera, planets = {}, animating = true;
+        let selectedPlanet = null;
+
+        const planetData = {
+            soleil: {
+                radius: 20,
+                color: new BABYLON.Color3(1, 0.8, 0.2),
+                distance: 0,
+                name: 'Soleil',
+                info: 'L\'étoile centrale de notre système solaire. Masse énorme qui maintient toutes les planètes en orbite.'
+            },
+            mercure: {
+                radius: 3.8,
+                color: new BABYLON.Color3(0.7, 0.7, 0.7),
+                distance: 40,
+                speed: 0.05,
+                name: 'Mercure',
+                info: 'La planète la plus proche du Soleil. Températures extrêmes et pas d\'atmosphère.'
+            },
+            venus: {
+                radius: 9.5,
+                color: new BABYLON.Color3(1, 0.8, 0.3),
+                distance: 60,
+                speed: 0.03,
+                name: 'Vénus',
+                info: 'La planète la plus chaude. Atmosphère dense composée de dioxyde de carbone.'
+            },
+            terre: {
+                radius: 10,
+                color: new BABYLON.Color3(0.2, 0.6, 1),
+                distance: 85,
+                speed: 0.02,
+                name: 'Terre',
+                info: 'Notre maison ! Seule planète connue avec la vie. Orbite en 365 jours.'
+            },
+            mars: {
+                radius: 5.3,
+                color: new BABYLON.Color3(1, 0.4, 0.2),
+                distance: 110,
+                speed: 0.015,
+                name: 'Mars',
+                info: 'La planète rouge. Possède les plus grandes montagnes du système solaire.'
+            },
+            jupiter: {
+                radius: 25,
+                color: new BABYLON.Color3(1, 0.7, 0.2),
+                distance: 170,
+                speed: 0.008,
+                name: 'Jupiter',
+                info: 'La plus grande planète. Géante gazeuse avec une Grande Tache Rouge.'
+            },
+            saturne: {
+                radius: 21,
+                color: new BABYLON.Color3(0.9, 0.8, 0.6),
+                distance: 220,
+                speed: 0.005,
+                name: 'Saturne',
+                info: 'Célèbre pour ses anneaux spectaculaires. Géante gazeuse peu dense.'
+            },
+            uranus: {
+                radius: 15,
+                color: new BABYLON.Color3(0.4, 0.8, 1),
+                distance: 270,
+                speed: 0.003,
+                name: 'Uranus',
+                info: 'Géante de glace. Tourne sur le côté avec un axe incliné à 98°.'
+            },
+            neptune: {
+                radius: 14,
+                color: new BABYLON.Color3(0.2, 0.4, 1),
+                distance: 320,
+                speed: 0.002,
+                name: 'Neptune',
+                info: 'La planète la plus éloignée. Vents violents et tempêtes géantes.'
+            }
+        };
+
+        function createScene() {
+            scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3(0.02, 0.04, 0.12);
+            scene.collisionsEnabled = true;
+
+            // Lumière
+            const light = new BABYLON.PointLight('sunLight', BABYLON.Vector3.Zero(), scene);
+            light.intensity = 2;
+            light.range = 2000;
+
+            // Caméra
+            camera = new BABYLON.ArcRotateCamera('camera', Math.PI / 2, Math.PI / 2.5, 400, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            camera.inertia = 0.7;
+            camera.angularSensibilityX = 500;
+            camera.angularSensibilityY = 500;
+            camera.wheelPrecision = 50;
+            camera.lowerRadiusLimit = 50;
+            camera.upperRadiusLimit = 1000;
+
+            // Créer les planètes
+            createPlanets();
+
+            // Étoiles de fond
+            createStars();
+
+            return scene;
+        }
+
+        function createPlanets() {
+            Object.keys(planetData).forEach(key => {
+                const data = planetData[key];
+                const sphere = BABYLON.MeshBuilder.CreateSphere(key, { diameter: data.radius * 2, segments: 32 }, scene);
+                
+                const material = new BABYLON.StandardMaterial(key + 'Mat', scene);
+                material.emissiveColor = data.color;
+                material.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+                sphere.material = material;
+
+                planets[key] = {
+                    mesh: sphere,
+                    angle: Math.random() * Math.PI * 2,
+                    data: data
+                };
+
+                // Orbite
+                if (data.distance > 0) {
+                    const orbitLine = BABYLON.MeshBuilder.CreateTube('orbit_' + key, {
+                        path: createOrbitPath(data.distance),
+                        radius: 0.5,
+                        updatable: false
+                    }, scene);
+                    const orbitMat = new BABYLON.StandardMaterial('orbitMat_' + key, scene);
+                    orbitMat.emissiveColor = new BABYLON.Color3(0.3, 0.6, 1);
+                    orbitMat.alpha = 0.3;
+                    orbitLine.material = orbitMat;
+                }
+
+                // Clic sur la planète
+                sphere.actionManager = new BABYLON.ActionManager(scene);
+                sphere.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+                    BABYLON.ActionManager.OnPickTrigger,
+                    () => selectPlanet(key)
+                ));
+            });
+        }
+
+        function createOrbitPath(distance) {
+            const path = [];
+            for (let i = 0; i <= 64; i++) {
+                const angle = (i / 64) * Math.PI * 2;
+                path.push(new BABYLON.Vector3(
+                    Math.cos(angle) * distance,
+                    0,
+                    Math.sin(angle) * distance
+                ));
+            }
+            return path;
+        }
+
+        function createStars() {
+            const starsTexture = new BABYLON.DynamicTexture('starsTexture', 512);
+            const ctx = starsTexture.getContext();
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, 512, 512);
+            ctx.fillStyle = 'white';
+
+            for (let i = 0; i < 1000; i++) {
+                const x = Math.random() * 512;
+                const y = Math.random() * 512;
+                const size = Math.random() * 2;
+                ctx.fillRect(x, y, size, size);
+            }
+            starsTexture.update();
+
+            const skybox = BABYLON.MeshBuilder.CreateBox('skybox', { size: 2000 }, scene);
+            const skyboxMat = new BABYLON.StandardMaterial('skyboxMat', scene);
+            skyboxMat.emissiveColor = new BABYLON.Color3(0.05, 0.05, 0.1);
+            skyboxMat.backFaceCulling = false;
+            skybox.material = skyboxMat;
+        }
+
+        function updatePlanets() {
+            Object.keys(planets).forEach(key => {
+                const planet = planets[key];
+                if (planet.data.distance > 0 && animating) {
+                    planet.angle += planet.data.speed * 0.01;
+                    planet.mesh.position.x = Math.cos(planet.angle) * planet.data.distance;
+                    planet.mesh.position.z = Math.sin(planet.angle) * planet.data.distance;
+                    planet.mesh.rotation.y += 0.005;
+                }
+            });
+        }
+
+        function selectPlanet(name) {
+            selectedPlanet = name;
+            const data = planetData[name];
+            const infoDiv = document.getElementById('planetInfo');
+            infoDiv.innerHTML = `
+                <div>
+                    <h3>${data.name}</h3>
+                    <p>${data.info}</p>
+                </div>
+            `;
+
+            if (planets[name]) {
+                const pos = planets[name].mesh.position;
+                camera.target = pos;
+                camera.radius = Math.max(data.radius * 10, 100);
+            }
+        }
+
+        function focusPlanet(name) {
+            selectPlanet(name);
+        }
+
+        function resetView() {
+            camera.target = BABYLON.Vector3.Zero();
+            camera.radius = 400;
+            selectedPlanet = null;
+        }
+
+        function toggleAnimation() {
+            animating = !animating;
+            document.querySelector('button[onclick="toggleAnimation()"]').classList.toggle('active');
+        }
+
+        function zoomOut() {
+            camera.radius = Math.min(camera.radius + 100, 1000);
+        }
+
+        function returnToChat() {
+            window.location.href = '/';
+        }
+
+        // Render loop
+        engine.runRenderLoop(() => {
+            updatePlanets();
+            scene.render();
+
+            // FPS
+            document.getElementById('fps').textContent = Math.round(engine.getFps());
+
+            // Distance
+            if (selectedPlanet && planets[selectedPlanet]) {
+                const dist = BABYLON.Vector3.Distance(camera.position, planets[selectedPlanet].mesh.position);
+                document.getElementById('distance').textContent = (dist / 10).toFixed(1);
+            }
+        });
+
+        // Resize
+        window.addEventListener('resize', () => {
+            engine.resize();
+        });
+
+        // Init
+        createScene();
+        document.getElementById('loading').style.display = 'none';
+    </script>
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 3D Univers Interactif - Planètes & Voie Lactée</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000814 0%, #001d3d 50%, #000814 100%);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-panel {
+            position: absolute;
+            background: rgba(0, 8, 20, 0.95);
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .controls {
+            top: 20px;
+            left: 20px;
+            max-width: 280px;
+        }
+
+        .info {
+            bottom: 20px;
+            right: 20px;
+            max-width: 300px;
+        }
+
+        .stats {
+            top: 20px;
+            right: 20px;
+            max-width: 180px;
+        }
+
+        .ui-panel h2, .ui-panel h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .ui-panel h3 {
+            margin-top: 15px;
+        }
+
+        .ui-panel label {
+            display: block;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .ui-panel label:hover {
+            color: #00f5ff;
+        }
+
+        .ui-panel input[type="radio"],
+        .ui-panel input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .ui-panel button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .ui-panel button:hover {
+            background: linear-gradient(135deg, #00f5ff, #00ccff);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00d4ff;
+        }
+
+        .stats div {
+            margin: 8px 0;
+            padding: 5px;
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 3px solid #00d4ff;
+            padding-left: 10px;
+            font-size: 12px;
+        }
+
+        .stats span {
+            color: #00f5ff;
+            font-weight: bold;
+        }
+
+        .info p {
+            margin: 5px 0;
+            line-height: 1.6;
+            font-size: 12px;
+        }
+
+        .planet-info {
+            background: rgba(0, 100, 200, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 3px solid #00f5ff;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 8, 20, 0.98);
+            padding: 40px 60px;
+            border-radius: 15px;
+            text-align: center;
+            border: 3px solid #00d4ff;
+            z-index: 1000;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .loading h1 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 212, 255, 0.3);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 8, 20, 0.9);
+            padding: 10px 20px;
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            font-size: 11px;
+            color: #aaa;
+            z-index: 50;
+        }
+
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+            text-shadow: 0 0 20px #00d4ff;
+            z-index: 50;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #00d4ff, #0099ff);
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            z-index: 150;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #00f5ff, #00ccff);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">🌌 UNIVERS 3D INTERACTIF - Planètes & Voie Lactée</div>
+
+    <a href="http://localhost:3000" class="back-btn">← Retour au Chatbot</a>
+
+    <div id="canvas-container"></div>
+
+    <div class="loading" id="loading">
+        <h1>🌌 Initialisation 3D...</h1>
+        <div class="spinner"></div>
+        <p>Chargement de l'Univers...</p>
+    </div>
+
+    <div class="ui-panel controls">
+        <h2>🎮 Contrôles</h2>
+        
+        <h3>Vue:</h3>
+        <label><input type="radio" name="view" value="system" checked> Système Solaire</label>
+        <label><input type="radio" name="view" value="galaxy"> Voie Lactée</label>
+        <label><input type="radio" name="view" value="both"> Vue Mixte</label>
+
+        <h3>Affichage:</h3>
+        <label><input type="checkbox" id="autoRotate" checked> Auto-rotation</label>
+        <label><input type="checkbox" id="showLabels" checked> Noms</label>
+        <label><input type="checkbox" id="showOrbits" checked> Orbites</label>
+
+        <button onclick="resetCamera()">🔄 Réinitialiser</button>
+        <button onclick="toggleFullscreen()">⛶ Plein écran</button>
+
+        <p style="margin-top: 15px; font-size: 11px; color: #888; line-height: 1.5;">
+            💡 Souris: Pivoter<br>
+            Molette: Zoom<br>
+            Clic droit: Panoramique
+        </p>
+    </div>
+
+    <div class="ui-panel stats">
+        <div>FPS: <span id="fps">60</span></div>
+        <div>Zoom: <span id="zoomLevel">1.0x</span></div>
+        <div>Objets: <span id="objectCount">0</span></div>
+        <div>Planète: <span id="currentPlanet">-</span></div>
+    </div>
+
+    <div class="ui-panel info">
+        <h3>ℹ️ Informations</h3>
+        <p>Bienvenue dans l'Univers 3D!</p>
+        <p>Explorez le système solaire et la Voie Lactée de manière interactive.</p>
+        <div class="planet-info" id="planetDetail" style="display: none;">
+            <strong id="planetName">-</strong>
+            <p id="planetDesc" style="font-size: 11px; margin-top: 5px;">-</p>
+        </div>
+    </div>
+
+    <div class="hint">
+        Survolez les planètes pour plus d'informations • Cliquez et déplacez pour explorer
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.17/dist/lil-gui.min.js"></script>
+    <script src="explorer3d-enhanced.js"></script>
+</body>
+</html>

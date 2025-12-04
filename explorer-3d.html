@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorateur 3D Univers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+            z-index: 100;
+            text-align: center;
+        }
+
+        #controls h3 {
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 8px 15px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00dd00;
+            transform: scale(1.05);
+        }
+
+        #backBtn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 101;
+        }
+
+        #backBtn:hover {
+            background: #dd0000;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+            max-width: 300px;
+            z-index: 100;
+        }
+
+        #info h4 {
+            color: #00ff00;
+            margin-bottom: 8px;
+        }
+
+        #info p {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <button id="backBtn">← Retour au Chat</button>
+    
+    <div id="info">
+        <h4>📍 Univers</h4>
+        <p id="infoText">Cliquez sur les astres pour explorer</p>
+    </div>
+
+    <div id="controls">
+        <h3>🎮 Contrôles</h3>
+        <div class="control-buttons">
+            <button onclick="zoomIn()">🔍 Zoom +</button>
+            <button onclick="zoomOut()">🔍 Zoom -</button>
+            <button onclick="rotateX()">⬆️ Rotation X</button>
+            <button onclick="rotateY()">⬅️ Rotation Y</button>
+            <button onclick="showPlanets()">🪐 Planètes</button>
+            <button onclick="showStars()">⭐ Étoiles</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Adapter la taille du canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Variables de contrôle
+        let zoom = 1;
+        let rotX = 0;
+        let rotY = 0;
+        let showPlanetsFlag = true;
+        let showStarsFlag = true;
+        let time = 0;
+
+        // Données des planètes
+        const planets = [
+            { name: 'Mercure', distance: 40, size: 4, color: '#8c7853', speed: 0.04 },
+            { name: 'Vénus', distance: 70, size: 7, color: '#ffc649', speed: 0.015 },
+            { name: 'Terre', distance: 100, size: 7, color: '#4a90e2', speed: 0.01 },
+            { name: 'Mars', distance: 130, size: 5, color: '#e27b58', speed: 0.008 },
+            { name: 'Jupiter', distance: 180, size: 16, color: '#c88b3a', speed: 0.002 },
+            { name: 'Saturne', distance: 230, size: 14, color: '#fad5a5', speed: 0.0009 }
+        ];
+
+        // Générer des étoiles
+        const stars = [];
+        for (let i = 0; i < 500; i++) {
+            stars.push({
+                x: (Math.random() - 0.5) * 2000,
+                y: (Math.random() - 0.5) * 2000,
+                z: (Math.random() - 0.5) * 2000,
+                size: Math.random() * 2
+            });
+        }
+
+        // Fonction de projection 3D
+        function project3D(x, y, z) {
+            const scale = zoom / (z + 500);
+            return {
+                x: canvas.width / 2 + x * scale,
+                y: canvas.height / 2 - y * scale,
+                scale: scale
+            };
+        }
+
+        // Appliquer les rotations
+        function rotate3D(x, y, z) {
+            // Rotation X
+            let cosX = Math.cos(rotX);
+            let sinX = Math.sin(rotX);
+            let y1 = y * cosX - z * sinX;
+            let z1 = y * sinX + z * cosX;
+
+            // Rotation Y
+            let cosY = Math.cos(rotY);
+            let sinY = Math.sin(rotY);
+            let x2 = x * cosY + z1 * sinY;
+            let z2 = -x * sinY + z1 * cosY;
+
+            return { x: x2, y: y1, z: z2 };
+        }
+
+        // Dessiner les étoiles
+        function drawStars() {
+            if (!showStarsFlag) return;
+
+            stars.forEach(star => {
+                const rotated = rotate3D(star.x, star.y, star.z);
+                const proj = project3D(rotated.x, rotated.y, rotated.z);
+
+                if (proj.scale > 0) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = 0.8;
+                    ctx.beginPath();
+                    const radius = Math.max(0.5, star.size * proj.scale);
+                    ctx.arc(proj.x, proj.y, radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        // Dessiner le soleil
+        function drawSun() {
+            const proj = project3D(0, 0, 0);
+            ctx.fillStyle = '#FDB813';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#FDB813';
+            ctx.beginPath();
+            ctx.arc(proj.x, proj.y, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        // Dessiner les planètes
+        function drawPlanets() {
+            if (!showPlanetsFlag) return;
+
+            planets.forEach(planet => {
+                const angle = time * planet.speed;
+                const x = Math.cos(angle) * planet.distance;
+                const z = Math.sin(angle) * planet.distance;
+
+                const rotated = rotate3D(x, 0, z);
+                const proj = project3D(rotated.x, rotated.y, rotated.z);
+
+                // Orbite
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.beginPath();
+                for (let i = 0; i < 100; i++) {
+                    const a = (i / 100) * Math.PI * 2;
+                    const px = Math.cos(a) * planet.distance;
+                    const pz = Math.sin(a) * planet.distance;
+                    const rot = rotate3D(px, 0, pz);
+                    const p = project3D(rot.x, rot.y, rot.z);
+                    if (i === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.stroke();
+
+                // Planète
+                ctx.fillStyle = planet.color;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = planet.color;
+                ctx.beginPath();
+                ctx.arc(proj.x, proj.y, planet.size * proj.scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Nom
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '12px Arial';
+                ctx.fillText(planet.name, proj.x + planet.size * proj.scale + 5, proj.y);
+            });
+        }
+
+        // Boucle d'animation
+        function animate() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            time += 1;
+
+            drawStars();
+            drawSun();
+            drawPlanets();
+
+            requestAnimationFrame(animate);
+        }
+
+        // Fonctions de contrôle
+        function zoomIn() {
+            zoom *= 1.2;
+        }
+
+        function zoomOut() {
+            zoom /= 1.2;
+        }
+
+        function rotateX() {
+            rotX += 0.1;
+        }
+
+        function rotateY() {
+            rotY += 0.1;
+        }
+
+        function showPlanets() {
+            showPlanetsFlag = !showPlanetsFlag;
+        }
+
+        function showStars() {
+            showStarsFlag = !showStarsFlag;
+        }
+
+        // Bouton retour
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = '/index.html';
+        });
+
+        // Démarrer l'animation
+        animate();
+
+        function showPlanets() {
+            showPlanetsFlag = !showPlanetsFlag;
+        }
+
+        function showStars() {
+            showStarsFlag = !showStarsFlag;
+        }
+
+        // Bouton retour
+        document.getElementById('backBtn').addEventListener('click', function() {
+            window.location.href = '/';
+        });
+
+        // Interaction à la souris
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', function(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            rotY = (mouseX - canvas.width / 2) / 500;
+            rotX = (mouseY - canvas.height / 2) / 500;
+        });
+
+        // Zoom à la molette
+        document.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            if (e.deltaY > 0) zoomOut();
+            else zoomIn();
+        }, { passive: false });
+
+        // Démarrer l'animation
+        animate();
+    </script>
+</body>
+</html>

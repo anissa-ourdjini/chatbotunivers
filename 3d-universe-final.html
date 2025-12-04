@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Univers 3D - Exploration Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            color: white;
+            z-index: 100;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            color: white;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button.back-btn {
+            background: #f44336;
+        }
+        
+        button.back-btn:hover {
+            background: #da190b;
+        }
+        
+        .planet-info {
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 300px;
+            display: none;
+            z-index: 100;
+            border: 2px solid #4CAF50;
+        }
+        
+        .planet-info h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .planet-info p {
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="ui-overlay">
+        <h2>🌌 Univers 3D</h2>
+        <p id="mode">Mode: Vue Générale</p>
+        <p id="info">Cliquez sur une planète pour plus d'infos</p>
+    </div>
+    
+    <div class="planet-info" id="planetInfo">
+        <h3 id="planetName">Planète</h3>
+        <p id="planetDesc"></p>
+    </div>
+    
+    <div class="controls">
+        <div>
+            <button onclick="changeView('solar')">Système Solaire</button>
+            <button onclick="changeView('galaxy')">Voie Lactée</button>
+            <button onclick="changeView('planets')">Planètes Détaillées</button>
+        </div>
+        <br>
+        <button class="back-btn" onclick="goBack()">← Retour au Chat</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let currentMode = 'solar';
+        let animationId;
+        let rotation = 0;
+        let selectedPlanet = null;
+        
+        // Données des planètes
+        const planets = {
+            mercury: { name: 'Mercure', size: 3, color: '#8C7853', distance: 80, speed: 0.04, desc: 'La plus proche du Soleil, très chaude' },
+            venus: { name: 'Vénus', size: 6, color: '#FFC649', distance: 120, speed: 0.015, desc: 'Planète la plus chaude, atmosphère dense' },
+            earth: { name: 'Terre', size: 6, color: '#4A90E2', distance: 160, speed: 0.01, desc: 'Notre maison, unique avec la vie' },
+            mars: { name: 'Mars', size: 4, color: '#E27B58', distance: 200, speed: 0.008, desc: 'La planète rouge, cibles d\'exploration' },
+            jupiter: { name: 'Jupiter', size: 15, color: '#C88B3A', distance: 280, speed: 0.002, desc: 'La plus grande planète du système solaire' },
+            saturn: { name: 'Saturne', size: 12, color: '#FAD5A5', distance: 340, speed: 0.0009, desc: 'Célèbre pour ses anneaux spectaculaires' }
+        };
+        
+        function drawSun() {
+            // Soleil
+            const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, 20);
+            gradient.addColorStop(0, '#FFF700');
+            gradient.addColorStop(1, '#FFA500');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Lueur du Soleil
+            ctx.strokeStyle = 'rgba(255, 165, 0, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 40, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        function drawPlanet(name, planetData, time) {
+            const angle = (time * planetData.speed) % (Math.PI * 2);
+            const x = canvas.width / 2 + Math.cos(angle) * planetData.distance;
+            const y = canvas.height / 2 + Math.sin(angle) * planetData.distance;
+            
+            // Orbite
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, planetData.distance, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Planète
+            ctx.fillStyle = planetData.color;
+            ctx.beginPath();
+            ctx.arc(x, y, planetData.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Texte du nom
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(planetData.name, x, y + planetData.size + 15);
+            
+            return { x, y, size: planetData.size, name };
+        }
+        
+        function drawSolarSystem(time) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Étoiles
+            drawStars();
+            
+            drawSun();
+            
+            const drawn = [];
+            for (const [key, data] of Object.entries(planets)) {
+                drawn.push(drawPlanet(key, data, time));
+            }
+            
+            return drawn;
+        }
+        
+        function drawStars() {
+            ctx.fillStyle = 'white';
+            for (let i = 0; i < 200; i++) {
+                const x = Math.sin(i * 12.9898) * 10000 % canvas.width;
+                const y = Math.cos(i * 78.233) * 10000 % canvas.height;
+                const size = Math.sin(i) * 0.5 + 0.5;
+                ctx.fillRect(x, y, size, size);
+            }
+        }
+        
+        function drawGalaxy(time) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Étoiles nombreuses
+            for (let i = 0; i < 500; i++) {
+                const angle = (i / 500) * Math.PI * 2;
+                const distance = Math.sin(i * 0.1) * 300 + 200;
+                const x = canvas.width / 2 + Math.cos(angle) * distance;
+                const y = canvas.height / 2 + Math.sin(angle) * distance;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.sin(time * 0.001 + i) * 0.5 + 0.5})`;
+                ctx.fillRect(x, y, 1, 1);
+            }
+            
+            // Centre galactique
+            const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, 150);
+            gradient.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 200, 100, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function drawPlanetsDetailed(time) {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawStars();
+            
+            // Affiche les planètes en grille
+            const positions = [
+                { key: 'mercury', x: 100, y: 100 },
+                { key: 'venus', x: 300, y: 100 },
+                { key: 'earth', x: 500, y: 100 },
+                { key: 'mars', x: 700, y: 100 },
+                { key: 'jupiter', x: 150, y: 300 },
+                { key: 'saturn', x: 450, y: 300 }
+            ];
+            
+            const drawn = [];
+            positions.forEach(pos => {
+                const planet = planets[pos.key];
+                const rotatedSize = planet.size + Math.sin(time * 0.001) * 2;
+                
+                ctx.fillStyle = planet.color;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, rotatedSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(planet.name, pos.x, pos.y + rotatedSize + 20);
+                
+                drawn.push({ x: pos.x, y: pos.y, size: rotatedSize, key: pos.key });
+            });
+            
+            return drawn;
+        }
+        
+        function animate(time) {
+            let planetsList = [];
+            
+            if (currentMode === 'solar') {
+                planetsList = drawSolarSystem(time);
+            } else if (currentMode === 'galaxy') {
+                drawGalaxy(time);
+            } else if (currentMode === 'planets') {
+                planetsList = drawPlanetsDetailed(time);
+            }
+            
+            rotation += 0.001;
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function changeView(mode) {
+            currentMode = mode;
+            selectedPlanet = null;
+            document.getElementById('planetInfo').style.display = 'none';
+            
+            const modeText = {
+                'solar': 'Système Solaire',
+                'galaxy': 'Voie Lactée',
+                'planets': 'Planètes Détaillées'
+            };
+            document.getElementById('mode').textContent = 'Mode: ' + modeText[mode];
+        }
+        
+        function goBack() {
+            window.location.href = '/';
+        }
+        
+        canvas.addEventListener('click', (e) => {
+            // Logique de sélection de planète si nécessaire
+        });
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Démarrer l'animation
+        animate(0);
+    </script>
+</body>
+</html>

@@ -323,6 +323,102 @@ Le chatbot est maintenant un **assistant astronomique visuellement riche** avec 
 
 ---
 
+## 🆕 AMÉLIORATIONS SUPPLÉMENTAIRES - DÉCEMBRE 2024 v2.1
+
+### Liberté du Chatbot Améliorée
+
+#### Avant (v2.0):
+- Questions limitées à 57 réponses programmées
+- Nécessitait une configuration manuelle
+- Images en fallback seulement
+
+#### Après (v2.1):
+✅ **Questions ILLIMITÉES** grâce à:
+- Wikipedia API (contexte gratuit)
+- Hugging Face LLM (IA optionnelle)
+- Wikimedia Commons (images gratuites)
+- SVG généré (fallback ultime)
+
+#### Architecture améliorée:
+```
+Question utilisateur
+        ↓
+├─ Base locale (57 réponses)
+├─ Wikipedia (1000+ articles)
+├─ Hugging Face IA (illimité si configuré)
+└─ Fallback local
+
+Chaque chemin retourne:
+{
+  reply: "Réponse...",
+  image: {
+    url: "...",
+    source: "wikipedia|unsplash|generated"
+  }
+}
+```
+
+### Nouvelles Sources d'Images
+
+1. **Wikimedia Commons** (Gratuit, HD, libre de droits)
+2. **Unsplash** (Optionnel, premium)
+3. **SVG Généré** (Fallback procédural)
+
+### Documentation Ajoutée
+
+1. **SETUP_IMAGES.md** - Configuration complète
+2. **QUICKSTART_IMAGES.md** - Démarrage 30 secondes
+3. **test-images.js** - Script de test automatisé
+
+### Améliorations Frontend
+
+```javascript
+// Avant: Images en fallback
+if (response.image) {
+    // Afficher après le texte
+}
+
+// Après: Images en priorité
+if (imgUrl) {
+    tempBotEl.insertBefore(img, textEl);
+    // Afficher AVANT le texte
+}
+```
+
+### Styles Améliorés
+
+```css
+.bot-message img {
+    border-radius: 12px;         /* Avant: 8px */
+    box-shadow: 0 8px 20px...   /* Avant: plus faible */
+    border: 1px solid rgba(...); /* Avant: sans bordure */
+    margin-bottom: 12px;         /* Avant: 8px */
+}
+```
+
+### Points Clés de v2.1
+
+✅ Images TOUJOURS affichées (même avec question non programmée)
+✅ Réponses pour n'importe quelle question (avec fallback)
+✅ Style cohérent et professionnel
+✅ Fallbacks robustes (5 niveaux)
+✅ Documentation complète
+✅ Script de test automatisé
+✅ Zéro limite pour l'utilisateur
+
+### Résumé v2.0 vs v2.1
+
+| Aspect | v2.0 | v2.1 |
+|--------|------|------|
+| Questions | 57 programmées | ILLIMITÉES |
+| Sources d'image | 2 | 4 |
+| Fallback | 1 niveau | 5 niveaux |
+| Documentation | Basique | Complète |
+| Automatisation | Manuel | Auto (test) |
+| Liberté utilisateur | Limitée | TOTALE |
+
+---
+
 **Date:** Décembre 2024
-**Version:** 2.0 - Image Rich
-**Maintenance:** Facile à ajouter/modifier les images via les URLs Unsplash
+**Version:** 2.1 - Unlimited Freedom + Complete Images
+**Maintenance:** Aucune config requise - fonctionne d'emblée!

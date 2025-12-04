@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Univers 3D Interactif</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0a2e 0%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00d4ff;
+            max-width: 300px;
+            z-index: 100;
+        }
+
+        .controls h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .control-item {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .control-item label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .control-item input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .control-item input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #00ff88;
+            max-width: 300px;
+            z-index: 100;
+            font-size: 13px;
+        }
+
+        .info-panel h3 {
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .info-text {
+            margin: 5px 0;
+            color: #00ff88;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+            transition: transform 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .shortcuts {
+            position: absolute;
+            top: 20px;
+            right: 220px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ff00ff;
+            font-size: 12px;
+            max-width: 200px;
+            z-index: 100;
+        }
+
+        .shortcuts h3 {
+            color: #ff00ff;
+            margin-bottom: 10px;
+        }
+
+        .shortcut-item {
+            margin: 5px 0;
+            color: #ff00ff;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div class="controls">
+        <h2>🎮 Contrôles</h2>
+        <div class="control-item">
+            <label>Vitesse de rotation:</label>
+            <input type="range" id="rotationSpeed" min="0" max="0.01" step="0.001" value="0.001">
+        </div>
+        <div class="control-item">
+            <label>Vitesse de zoom:</label>
+            <input type="range" id="zoomSpeed" min="0.01" max="0.5" step="0.01" value="0.1">
+        </div>
+        <div class="control-item">
+            <label for="starsToggle">⭐ Afficher les étoiles</label>
+            <input type="checkbox" id="starsToggle" checked>
+        </div>
+        <div class="control-item">
+            <label for="orbitsToggle">🌀 Afficher les orbites</label>
+            <input type="checkbox" id="orbitsToggle" checked>
+        </div>
+        <div class="control-item">
+            <label for="labelsToggle">🏷️ Afficher les noms</label>
+            <input type="checkbox" id="labelsToggle" checked>
+        </div>
+        <div class="control-item">
+            <label>Zoom: <span id="zoomValue">100</span>%</label>
+        </div>
+    </div>
+
+    <div class="shortcuts">
+        <h3>⌨️ Raccourcis</h3>
+        <div class="shortcut-item">🖱️ Clic + Drag = Rotation</div>
+        <div class="shortcut-item">🔍 Scroll = Zoom</div>
+        <div class="shortcut-item">R = Réinitialiser</div>
+        <div class="shortcut-item">P = Pause/Play</div>
+    </div>
+
+    <div class="info-panel">
+        <h3>📡 Infos Univers</h3>
+        <div class="info-text" id="selectedObject">Sélectionnez un objet</div>
+        <div class="info-text" id="cameraPos">Position: -</div>
+        <div class="info-text" id="fps">FPS: 0</div>
+    </div>
+
+    <button class="back-btn" onclick="goBack()">← Retour au Chat</button>
+
+    <script>
+        // Configuration du canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Variables de caméra
+        let camera = {
+            x: 0,
+            y: 0,
+            z: 150,
+            rotX: 0,
+            rotY: 0,
+            rotZ: 0
+        };
+
+        let controls = {
+            rotationSpeed: 0.001,
+            zoomSpeed: 0.1,
+            showStars: true,
+            showOrbits: true,
+            showLabels: true,
+            isDragging: false,
+            lastX: 0,
+            lastY: 0,
+            isPaused: false
+        };
+
+        let time = 0;
+        let selectedObject = null;
+        let frameCount = 0;
+        let lastTime = Date.now();
+        let fps = 0;
+
+        // Données des corps célestes
+        const bodies = [
+            {
+                name: 'Soleil',
+                radius: 20,
+                distance: 0,
+                speed: 0,
+                color: '#FDB813',
+                type: 'star',
+                info: 'Étoile - Diamètre: 1.4M km'
+            },
+            {
+                name: 'Mercure',
+                radius: 3.8,
+                distance: 40,
+                speed: 0.04,
+                color: '#8C7853',
+                type: 'planet',
+                info: 'Mercure - Plus proche du Soleil'
+            },
+            {
+                name: 'Vénus',
+                radius: 9.5,
+                distance: 70,
+                speed: 0.015,
+                color: '#FFC649',
+                type: 'planet',
+                info: 'Vénus - Planète la plus chaude'
+            },
+            {
+                name: 'Terre',
+                radius: 10,
+                distance: 100,
+                speed: 0.01,
+                color: '#4A90E2',
+                type: 'planet',
+                info: 'Terre - Notre planète'
+            },
+            {
+                name: 'Mars',
+                radius: 5.3,
+                distance: 140,
+                speed: 0.008,
+                color: '#E27B58',
+                type: 'planet',
+                info: 'Mars - Planète rouge'
+            },
+            {
+                name: 'Jupiter',
+                radius: 25,
+                distance: 200,
+                speed: 0.002,
+                color: '#C88B3A',
+                type: 'planet',
+                info: 'Jupiter - La plus grande planète'
+            },
+            {
+                name: 'Saturne',
+                radius: 21,
+                distance: 280,
+                speed: 0.0009,
+                color: '#FAD5A5',
+                type: 'planet',
+                info: 'Saturne - Célèbre pour ses anneaux'
+            },
+            {
+                name: 'Uranus',
+                radius: 15.5,
+                distance: 350,
+                speed: 0.0004,
+                color: '#4FD0E7',
+                type: 'planet',
+                info: 'Uranus - Planète de glace'
+            },
+            {
+                name: 'Neptune',
+                radius: 15,
+                distance: 400,
+                speed: 0.0001,
+                color: '#4166F5',
+                type: 'planet',
+                info: 'Neptune - Planète au vent le plus fort'
+            }
+        ];
+
+        // Génération des étoiles de fond
+        let stars = [];
+        function generateStars() {
+            stars = [];
+            for (let i = 0; i < 1000; i++) {
+                stars.push({
+                    x: Math.random() * 2000 - 1000,
+                    y: Math.random() * 2000 - 1000,
+                    z: Math.random() * 2000 - 1000,
+                    size: Math.random() * 1.5,
+                    brightness: Math.random()
+                });
+            }
+        }
+        generateStars();
+
+        // Projection 3D vers 2D
+        function project3D(x, y, z) {
+            const scale = 500 / (z + 500);
+            return {
+                x: canvas.width / 2 + x * scale,
+                y: canvas.height / 2 + y * scale,
+                scale: scale
+            };
+        }
+
+        // Rotation 3D
+        function rotatePoint(x, y, z) {
+            // Rotation X
+            let cy = Math.cos(camera.rotX);
+            let sy = Math.sin(camera.rotX);
+            let y1 = y * cy - z * sy;
+            let z1 = y * sy + z * cy;
+
+            // Rotation Y
+            cy = Math.cos(camera.rotY);
+            sy = Math.sin(camera.rotY);
+            let x1 = x * cy + z1 * sy;
+            z1 = -x * sy + z1 * cy;
+
+            // Rotation Z
+            cy = Math.cos(camera.rotZ);
+            sy = Math.sin(camera.rotZ);
+            let x2 = x1 * cy - y1 * sy;
+            let y2 = x1 * sy + y1 * cy;
+
+            return { x: x2, y: y2, z: z1 };
+        }
+
+        // Dessiner les étoiles
+        function drawStars() {
+            if (!controls.showStars) return;
+
+            stars.forEach(star => {
+                const rotated = rotatePoint(star.x, star.y, star.z);
+                const projected = project3D(rotated.x, rotated.y, rotated.z);
+
+                if (projected.scale > 0) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * 0.8})`;
+                    ctx.beginPath();
+                    ctx.arc(projected.x, projected.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+        }
+
+        // Dessiner les orbites
+        function drawOrbits() {
+            if (!controls.showOrbits) return;
+
+            bodies.slice(1).forEach(body => {
+                ctx.strokeStyle = 'rgba(100, 200, 255, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+
+                for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+                    const x = Math.cos(angle) * body.distance;
+                    const z = Math.sin(angle) * body.distance;
+                    const rotated = rotatePoint(x, 0, z);
+                    const projected = project3D(rotated.x, rotated.y, rotated.z);
+
+                    if (angle === 0) {
+                        ctx.moveTo(projected.x, projected.y);
+                    } else {
+                        ctx.lineTo(projected.x, projected.y);
+                    }
+                }
+                ctx.closePath();
+                ctx.stroke();
+            });
+        }
+
+        // Dessiner les corps célestes
+        function drawBodies() {
+            const sorted = bodies.map((body, index) => {
+                let x, y, z;
+
+                if (body.distance === 0) {
+                    x = y = z = 0;
+                } else {
+                    const angle = time * body.speed + index;
+                    x = Math.cos(angle) * body.distance;
+                    z = Math.sin(angle) * body.distance;
+                    y = Math.sin(time * body.speed * 0.3) * body.distance * 0.3;
+                }
+
+                const rotated = rotatePoint(x, y, z);
+                const projected = project3D(rotated.x, rotated.y, rotated.z);
+
+                return {
+                    ...body,
+                    index,
+                    x: rotated.x,
+                    y: rotated.y,
+                    z: rotated.z,
+                    projX: projected.x,
+                    projY: projected.y,
+                    scale: projected.scale,
+                    screenZ: rotated.z
+                };
+            }).sort((a, b) => a.screenZ - b.screenZ);
+
+            sorted.forEach(body => {
+                if (body.scale <= 0) return;
+
+                const radius = body.radius * body.scale;
+
+                // Lueur
+                if (body.type === 'star') {
+                    const gradient = ctx.createRadialGradient(
+                        body.projX, body.projY, 0,
+                        body.projX, body.projY, radius * 2
+                    );
+                    gradient.addColorStop(0, body.color);
+                    gradient.addColorStop(1, 'rgba(253, 184, 19, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(body.projX, body.projY, radius * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Corps
+                ctx.fillStyle = body.color;
+                ctx.beginPath();
+                ctx.arc(body.projX, body.projY, radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Surbrillance
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // Nom
+                if (controls.showLabels && radius > 3) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = `${Math.max(10, radius * 0.8)}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(body.name, body.projX, body.projY + radius + 15);
+                }
+
+                // Détection de sélection
+                body.projX = body.projX;
+                body.projY = body.projY;
+                body.radius = radius;
+            });
+
+            return sorted;
+        }
+
+        // Boucle d'animation
+        let bodiesList = [];
+        function animate() {
+            // Effacer
+            ctx.fillStyle = '#0a0a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Gradient de fond
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height)
+            );
+            gradient.addColorStop(0, 'rgba(20, 20, 60, 0.3)');
+            gradient.addColorStop(1, 'rgba(10, 10, 30, 1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Mise à jour du temps
+            if (!controls.isPaused) {
+                time += 0.01;
+            }
+
+            // Rotation automatique légère
+            camera.rotY += controls.rotationSpeed;
+
+            // Dessiner
+            drawStars();
+            drawOrbits();
+            bodiesList = drawBodies();
+
+            // Stats
+            frameCount++;
+            const now = Date.now();
+            if (now - lastTime >= 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = now;
+            }
+
+            // Mise à jour des infos
+            document.getElementById('cameraPos').textContent = 
+                `Position: (${camera.x.toFixed(0)}, ${camera.y.toFixed(0)}, ${camera.z.toFixed(0)})`;
+            document.getElementById('fps').textContent = `FPS: ${fps}`;
+
+            if (selectedObject) {
+                const obj = bodiesList.find(b => b.name === selectedObject);
+                if (obj) {
+                    document.getElementById('selectedObject').textContent = 
+                        `${obj.name} - ${obj.info}`;
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Événements souris
+        canvas.addEventListener('mousedown', (e) => {
+            controls.isDragging = true;
+            controls.lastX = e.clientX;
+            controls.lastY = e.clientY;
+
+            // Détection de clic sur un objet
+            bodiesList.forEach(body => {
+                const dist = Math.sqrt(
+                    Math.pow(e.clientX - body.projX, 2) +
+                    Math.pow(e.clientY - body.projY, 2)
+                );
+                if (dist < body.radius + 10) {
+                    selectedObject = body.name;
+                    camera.z = body.distance * 2.5;
+                }
+            });
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (controls.isDragging) {
+                const deltaX = e.clientX - controls.lastX;
+                const deltaY = e.clientY - controls.lastY;
+
+                camera.rotY += deltaX * 0.01;
+                camera.rotX += deltaY * 0.01;
+
+                controls.lastX = e.clientX;
+                controls.lastY = e.clientY;
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            controls.isDragging = false;
+        });
+
+        // Zoom à la souris
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            camera.z += e.deltaY * controls.zoomSpeed;
+            camera.z = Math.max(50, Math.min(500, camera.z));
+            const zoomPercent = Math.round(100 - (camera.z - 50) / 4.5);
+            document.getElementById('zoomValue').textContent = zoomPercent;
+        });
+
+        // Contrôles clavier
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                camera = { x: 0, y: 0, z: 150, rotX: 0, rotY: 0, rotZ: 0 };
+                selectedObject = null;
+            }
+            if (e.key === 'p' || e.key === 'P') {
+                controls.isPaused = !controls.isPaused;
+            }
+        });
+
+        // Sliders
+        document.getElementById('rotationSpeed').addEventListener('input', (e) => {
+            controls.rotationSpeed = parseFloat(e.target.value);
+        });
+
+        document.getElementById('zoomSpeed').addEventListener('input', (e) => {
+            controls.zoomSpeed = parseFloat(e.target.value);
+        });
+
+        document.getElementById('starsToggle').addEventListener('change', (e) => {
+            controls.showStars = e.target.checked;
+        });
+
+        document.getElementById('orbitsToggle').addEventListener('change', (e) => {
+            controls.showOrbits = e.target.checked;
+        });
+
+        document.getElementById('labelsToggle').addEventListener('change', (e) => {
+            controls.showLabels = e.target.checked;
+        });
+
+        // Redimensionnement
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Démarrer
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        animate();
+    </script>
+</body>
+</html>

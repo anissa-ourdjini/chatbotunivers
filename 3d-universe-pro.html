@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Univers 3D - Explorateur Premium</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@r128/build/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .ui-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            pointer-events: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            background: linear-gradient(45deg, #00d4ff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-back {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff006e, #8338ec);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            pointer-events: auto;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+        }
+
+        .controls-panel {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            z-index: 100;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #00d4ff;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .control-input {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            color: #00d4ff;
+            font-size: 12px;
+        }
+
+        .control-input:focus {
+            outline: none;
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(0, 212, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            border-radius: 5px;
+            color: #00d4ff;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn.active {
+            background: #00d4ff;
+            color: #0a0e27;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 100px;
+            right: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #ff006e;
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(255, 0, 110, 0.3);
+            z-index: 100;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .info-title {
+            color: #ff006e;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .info-content {
+            color: #00d4ff;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .stats {
+            position: absolute;
+            top: 100px;
+            left: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #8338ec;
+            border-radius: 15px;
+            padding: 15px;
+            width: 250px;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(131, 56, 236, 0.3);
+            z-index: 100;
+            font-size: 12px;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: #8338ec;
+        }
+
+        .stat-label {
+            font-weight: bold;
+        }
+
+        .stat-value {
+            color: #00d4ff;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(10, 14, 39, 0.95);
+            border: 2px solid #06ffa5;
+            border-radius: 15px;
+            padding: 15px;
+            width: 200px;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(6, 255, 165, 0.3);
+            z-index: 100;
+            font-size: 11px;
+        }
+
+        .legend-title {
+            color: #06ffa5;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #00d4ff;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: auto;
+            z-index: 200;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top: 4px solid #00d4ff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #00d4ff;
+            font-size: 16px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00d4ff;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0099ff;
+        }
+
+        @media (max-width: 768px) {
+            .controls-panel, .info-panel, .stats, .legend {
+                width: 200px;
+                padding: 15px;
+                font-size: 11px;
+            }
+
+            .title {
+                font-size: 18px;
+            }
+
+            .btn-back {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ui-container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Chargement de l'univers...</div>
+        </div>
+
+        <div class="header">
+            <div class="title">🌌 Univers 3D Pro</div>
+            <button class="btn-back" onclick="window.location.href='/'; return false;">← Retour au Chat</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-line">
+                <span class="stat-label">FPS:</span>
+                <span class="stat-value" id="fps">60</span>
+            </div>
+            <div class="stat-line">
+                <span class="stat-label">Objets:</span>
+                <span class="stat-value" id="objects">0</span>
+            </div>
+            <div class="stat-line">
+                <span class="stat-label">Triangles:</span>
+                <span class="stat-value" id="triangles">0</span>
+            </div>
+            <div class="stat-line">
+                <span class="stat-label">Distance:</span>
+                <span class="stat-value" id="distance">0 km</span>
+            </div>
+            <div class="stat-line">
+                <span class="stat-label">Vue:</span>
+                <span class="stat-value" id="view-mode">Libre</span>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <label class="control-label">Vitesse d'animation</label>
+                <input type="range" class="slider" id="speedSlider" min="0" max="200" value="50">
+                <span style="font-size: 10px; color: #00d4ff;" id="speedValue">50%</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Zoom</label>
+                <input type="range" class="slider" id="zoomSlider" min="1" max="500" value="100">
+                <span style="font-size: 10px; color: #00d4ff;" id="zoomValue">100%</span>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Mode</label>
+                <div class="button-group">
+                    <button class="btn active" id="modeOrbital" onclick="setMode('orbital')">Orbital</button>
+                    <button class="btn" id="modeFreeFly" onclick="setMode('freefly')">FreeFly</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Affichage</label>
+                <div class="button-group">
+                    <button class="btn" id="toggleWireframe" onclick="toggleWireframe()">Wireframe</button>
+                    <button class="btn" id="toggleLabels" onclick="toggleLabels()">Labels</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">Actions</label>
+                <div class="button-group">
+                    <button class="btn" id="toggleAnimation" onclick="toggleAnimation()">▶ Play</button>
+                    <button class="btn" id="resetView" onclick="resetView()">⟲ Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-title">Informations</div>
+            <div class="info-content" id="infoContent">
+                <p>Survolez un objet pour voir les détails...</p>
+                <p style="margin-top: 10px; font-size: 10px; color: #8338ec;">
+                    <strong>Contrôles:</strong><br>
+                    • Souris: Rotation<br>
+                    • Molette: Zoom<br>
+                    • Clic droit: Pan<br>
+                    • Espace: Play/Pause<br>
+                </p>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-title">Légende</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fdb813;"></div>
+                <span>Soleil</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4169e1;"></div>
+                <span>Planète gazeuse</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #8b4513;"></div>
+                <span>Planète rocheuse</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #06ffa5;"></div>
+                <span>Orbite</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let planets = {}, orbits = [];
+        let sun, selectedObject = null;
+        let isAnimating = true, isWireframe = false, showLabels = false;
+        let currentMode = 'orbital';
+        let frameCount = 0, lastTime = Date.now();
+
+        const planetsData = {
+            mercury: { name: 'Mercure', distance: 40, size: 3.8, speed: 0.04, color: 0x8c7853, temp: '430°C' },
+            venus: { name: 'Vénus', distance: 70, size: 9.5, speed: 0.015, color: 0xffc649, temp: '460°C' },
+            earth: { name: 'Terre', distance: 100, size: 10, speed: 0.01, color: 0x4b9bff, temp: '15°C' },
+            mars: { name: 'Mars', distance: 150, size: 5.3, speed: 0.008, color: 0xff6347, temp: '-63°C' },
+            jupiter: { name: 'Jupiter', distance: 250, size: 25, speed: 0.002, color: 0xc88b3a, temp: '-110°C' },
+            saturn: { name: 'Saturne', distance: 350, size: 21, speed: 0.0009, color: 0xfad5a5, temp: '-140°C' },
+            uranus: { name: 'Uranus', distance: 450, size: 15, speed: 0.0004, color: 0x4fd0e7, temp: '-195°C' },
+            neptune: { name: 'Neptune', distance: 550, size: 14.6, speed: 0.0001, color: 0x4166f5, temp: '-200°C' }
+        };
+
+        function init() {
+            // Vérifier que OrbitControls est disponible
+            if (typeof OrbitControls === 'undefined') {
+                console.log('OrbitControls not ready, retrying...');
+                setTimeout(init, 200);
+                return;
+            }
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0e27);
+            scene.fog = new THREE.Fog(0x0a0e27, 2000, 4000);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+            camera.position.set(0, 150, 150);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFShadowShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            // Contrôles manuels sans OrbitControls
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - previousMousePosition.x;
+                    const deltaY = e.clientY - previousMousePosition.y;
+                    camera.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), deltaX * 0.01);
+                    camera.position.applyAxisAngle(new THREE.Vector3(1, 0, 0), deltaY * 0.01);
+                    camera.lookAt(0, 0, 0);
+                }
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            renderer.domElement.addEventListener('mouseup', () => isDragging = false);
+            renderer.domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                camera.position.multiplyScalar(e.deltaY > 0 ? 1.1 : 0.9);
+            }, { passive: false });
+
+            addLights();
+            addStars();
+            createSun();
+            createPlanets();
+            createOrbits();
+
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('keydown', onKeyDown);
+            document.getElementById('speedSlider').addEventListener('input', updateSpeed);
+            document.getElementById('zoomSlider').addEventListener('input', updateZoom);
+
+            document.getElementById('loading').style.display = 'none';
+            animate();
+        }
+
+        function addLights() {
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.PointLight(0xffffff, 2, 2000);
+            sunLight.position.set(0, 0, 0);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
+        }
+
+        function addStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 10000;
+            const positions = new Float32Array(starCount * 3);
+
+            for (let i = 0; i < starCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 4000;
+                positions[i + 1] = (Math.random() - 0.5) * 4000;
+                positions[i + 2] = (Math.random() - 0.5) * 4000;
+            }
+
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 2 });
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        function createSun() {
+            const sunGeometry = new THREE.SphereGeometry(20, 64, 64);
+            const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xfdb813 });
+            sun = new THREE.Mesh(sunGeometry, sunMaterial);
+            sun.userData = { name: 'Soleil', type: 'star', temp: '5500°C', mass: '1.989 × 10³⁰ kg' };
+            scene.add(sun);
+
+            const glowGeometry = new THREE.SphereGeometry(25, 32, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0xfdb813,
+                transparent: true,
+                opacity: 0.1
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            scene.add(glow);
+        }
+
+        function createPlanets() {
+            Object.keys(planetsData).forEach(key => {
+                const data = planetsData[key];
+                const geometry = new THREE.SphereGeometry(data.size, 32, 32);
+                const material = new THREE.MeshStandardMaterial({
+                    color: data.color,
+                    roughness: 0.7,
+                    metalness: 0.3
+                });
+                const planet = new THREE.Mesh(geometry, material);
+                planet.castShadow = true;
+                planet.receiveShadow = true;
+                planet.userData = {
+                    ...data,
+                    angle: Math.random() * Math.PI * 2,
+                    distance: data.distance,
+                    speed: data.speed
+                };
+                scene.add(planet);
+                planets[key] = planet;
+            });
+        }
+
+        function createOrbits() {
+            Object.keys(planetsData).forEach(key => {
+                const data = planetsData[key];
+                const points = [];
+                for (let i = 0; i <= 128; i++) {
+                    const angle = (i / 128) * Math.PI * 2;
+                    points.push(
+                        Math.cos(angle) * data.distance,
+                        0,
+                        Math.sin(angle) * data.distance
+                    );
+                }
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(points), 3));
+                const material = new THREE.LineBasicMaterial({ color: 0x06ffa5, transparent: true, opacity: 0.3 });
+                const orbit = new THREE.Line(geometry, material);
+                scene.add(orbit);
+                orbits.push(orbit);
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isAnimating) {
+                Object.values(planets).forEach(planet => {
+                    planet.userData.angle += planet.userData.speed * (parseFloat(document.getElementById('speedSlider').value) / 50);
+                    planet.position.x = Math.cos(planet.userData.angle) * planet.userData.distance;
+                    planet.position.z = Math.sin(planet.userData.angle) * planet.userData.distance;
+                    planet.rotation.y += 0.005;
+                });
+                sun.rotation.y += 0.002;
+            }
+
+            if (currentMode === 'orbital') {
+                controls.autoRotate = true;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+
+            updateStats();
+        }
+
+        function updateStats() {
+            frameCount++;
+            const now = Date.now();
+            if (now - lastTime >= 1000) {
+                document.getElementById('fps').textContent = frameCount;
+                frameCount = 0;
+                lastTime = now;
+            }
+
+            document.getElementById('objects').textContent = Object.keys(planets).length + 1;
+            const distance = camera.position.length().toFixed(0);
+            document.getElementById('distance').textContent = distance + ' km';
+        }
+
+        function onMouseMove(event) {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            const objects = [sun, ...Object.values(planets)];
+            const intersects = raycaster.intersectObjects(objects);
+
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                selectedObject = obj;
+                const data = obj.userData;
+                let html = `<strong>${data.name}</strong><br><br>`;
+                if (data.temp) html += `Température: ${data.temp}<br>`;
+                if (data.mass) html += `Masse: ${data.mass}<br>`;
+                if (data.distance) html += `Distance: ${data.distance} UA<br>`;
+                document.getElementById('infoContent').innerHTML = html;
+            }
+        }
+
+        function onKeyDown(event) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                toggleAnimation();
+            }
+        }
+
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            document.getElementById('toggleAnimation').textContent = isAnimating ? '⏸ Pause' : '▶ Play';
+        }
+
+        function toggleWireframe() {
+            isWireframe = !isWireframe;
+            Object.values(planets).forEach(p => p.material.wireframe = isWireframe);
+            document.getElementById('toggleWireframe').classList.toggle('active');
+        }
+
+        function toggleLabels() {
+            showLabels = !showLabels;
+            document.getElementById('toggleLabels').classList.toggle('active');
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('modeOrbital').classList.toggle('active', mode === 'orbital');
+            document.getElementById('modeFreeFly').classList.toggle('active', mode === 'freefly');
+            controls.autoRotate = mode === 'orbital';
+            document.getElementById('view-mode').textContent = mode === 'orbital' ? 'Orbital' : 'FreeFly';
+        }
+
+        function updateSpeed() {
+            const value = document.getElementById('speedSlider').value;
+            document.getElementById('speedValue').textContent = value + '%';
+        }
+
+        function updateZoom() {
+            const value = document.getElementById('zoomSlider').value;
+            document.getElementById('zoomValue').textContent = value + '%';
+            const distance = 300 * (value / 100);
+            const direction = camera.position.clone().normalize();
+            camera.position.copy(direction.multiplyScalar(distance));
+        }
+
+        function resetView() {
+            camera.position.set(0, 150, 150);
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

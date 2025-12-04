@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 3D Univers - Planètes & Voie Lactée</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000814 0%, #001d3d 50%, #000814 100%);
+            overflow: hidden;
+            height: 100vh;
+            color: #fff;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 8, 20, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #00d4ff;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 300px;
+        }
+
+        .controls h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .controls label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        .controls input[type="radio"],
+        .controls input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .controls button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #00d4ff;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .controls button:hover {
+            background: #00f5ff;
+            transform: scale(1.05);
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 8, 20, 0.9);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid #00d4ff;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 100;
+        }
+
+        .info h3 {
+            color: #00d4ff;
+            margin-bottom: 8px;
+        }
+
+        .info p {
+            margin: 4px 0;
+            line-height: 1.5;
+        }
+
+        .stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 8, 20, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #00d4ff;
+            font-size: 12px;
+            z-index: 100;
+        }
+
+        .stats div {
+            margin: 5px 0;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 8, 20, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            border: 3px solid #00d4ff;
+            z-index: 1000;
+        }
+
+        .loading h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #00d4ff;
+            border-top: 4px solid transparent;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <h2>🌌 Chargement 3D...</h2>
+        <div class="spinner"></div>
+        <p>Initialisation de l'univers...</p>
+    </div>
+
+    <div id="canvas-container" style="width:100%;height:100%;"></div>
+
+    <div class="controls">
+        <h2>🎮 Contrôles</h2>
+        <h3>Mode:</h3>
+        <label>
+            <input type="radio" name="mode" value="planets" checked>
+            Système Solaire
+        </label>
+        <label>
+            <input type="radio" name="mode" value="galaxy">
+            Voie Lactée
+        </label>
+        <label>
+            <input type="radio" name="mode" value="both">
+            Vue Mixte
+        </label>
+
+        <h3 style="margin-top: 15px;">Affichage:</h3>
+        <label>
+            <input type="checkbox" id="autoRotate" checked>
+            Rotation automatique
+        </label>
+        <label>
+            <input type="checkbox" id="showLabels" checked>
+            Noms des planètes
+        </label>
+        <label>
+            <input type="checkbox" id="showOrbits" checked>
+            Orbites visibles
+        </label>
+
+        <button onclick="resetView()">🔄 Réinitialiser Vue</button>
+        <button onclick="toggleFullscreen()">⛶ Plein Écran</button>
+
+        <p style="margin-top: 15px; font-size: 11px; color: #888;">
+            💡 Utilisez la souris pour pivoter<br>
+            Molette pour zoomer<br>
+            Clic droit + drag pour panoramique
+        </p>
+    </div>
+
+    <div class="stats" id="stats">
+        <div>FPS: <span id="fps">60</span></div>
+        <div>Objets: <span id="objCount">0</span></div>
+        <div>Zoom: <span id="zoom">1x</span></div>
+    </div>
+
+    <div class="info" id="info">
+        <h3>ℹ️ Infos Univers</h3>
+        <p>Bienvenue dans l'Univers 3D!</p>
+        <p>Survolez les objets pour plus d'infos.</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="explorer3d.js"></script>
+</body>
+</html>
