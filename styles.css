@@ -490,6 +490,31 @@ header p {
     line-height: 1.5;
 }
 
+#galaxyHistoryContent {
+    color: #e0e0e0;
+}
+
+#galaxyHistoryContent h2 {
+    color: #64c8ff;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+#galaxyHistoryContent h3 {
+    color: #8b5cf6;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+#galaxyHistoryContent ul {
+    margin-left: 20px;
+    line-height: 1.8;
+}
+
+#galaxyHistoryContent li {
+    margin-bottom: 10px;
+}
+
 /* ===== UNIVERSE ===== */
 .universe-viz {
     display: flex;
@@ -502,6 +527,27 @@ header p {
 .universe-viz h3 {
     color: #64c8ff;
     margin-bottom: 20px;
+}
+
+.history-btn {
+    background: linear-gradient(135deg, #ff006e, #8338ec) !important;
+    color: white !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 5px !important;
+    cursor: pointer !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+}
+
+.history-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(255, 0, 110, 0.3) !important;
+}
+
+.history-btn:active {
+    transform: translateY(0) !important;
 }
 
 .galaxy-svg {

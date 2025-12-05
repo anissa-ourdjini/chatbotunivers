@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Voie Lactée 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d0520 100%);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(100, 200, 255, 0.1);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+        }
+
+        header h1 {
+            font-size: 2em;
+            background: linear-gradient(90deg, #64c8ff, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            background: rgba(20, 25, 50, 0.8);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        #galaxyContainer3d {
+            width: 100%;
+            height: 600px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000011;
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #64c8ff, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 200, 255, 0.3);
+        }
+
+        .info {
+            background: rgba(50, 100, 150, 0.2);
+            border-left: 4px solid #64c8ff;
+            padding: 15px;
+            border-radius: 5px;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(20, 25, 50, 0.95), rgba(30, 35, 60, 0.95));
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .close {
+            color: #64c8ff;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close:hover {
+            color: #ff006e;
+        }
+
+        h2 {
+            color: #64c8ff;
+            margin-bottom: 15px;
+        }
+
+        h3 {
+            color: #8b5cf6;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌌 Test Voie Lactée 3D Interactive</h1>
+            <p>Visualisation réaliste de notre galaxie avec Three.js</p>
+        </header>
+
+        <div class="content">
+            <div class="controls">
+                <button onclick="showGalaxyHistory()">📖 Histoire et Découvertes</button>
+                <button onclick="resetView()">🔄 Réinitialiser Vue</button>
+                <button onclick="toggleAnimation()">⏸️ Pause Animation</button>
+            </div>
+
+            <div id="galaxyContainer3d"></div>
+
+            <div class="info">
+                <h4>💡 Instructions d'Interaction:</h4>
+                <p>
+                    <strong>Souris:</strong> Cliquez et glissez pour tourner la galaxie<br>
+                    <strong>Molette:</strong> Utilisez la molette pour zoomer avant/arrière<br>
+                    <strong>Boutons:</strong> Utilisez les boutons ci-dessus pour plus d'options
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Histoire -->
+    <div id="galaxyHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGalaxyHistory()">&times;</span>
+            <div id="galaxyHistoryContent">
+                <h2>📖 Histoire et Découvertes de la Voie Lactée</h2>
+                
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;">
+                    <div>
+                        <h3>🔭 Découvertes Historiques</h3>
+                        <ul>
+                            <li><strong>Antiquité:</strong> Les anciens Grecs observent une "rivière de lait" dans le ciel</li>
+                            <li><strong>1610:</strong> Galilée observe avec son télescope que c'est composé d'innombrables étoiles</li>
+                            <li><strong>1750:</strong> Thomas Wright propose que c'est un disque d'étoiles</li>
+                            <li><strong>1917:</strong> Heber Curtis et Harlow Shapley débattent sur la taille réelle</li>
+                            <li><strong>1927:</strong> Edwin Hubble découvre que notre galaxie fait partie d'un univers plus grand</li>
+                            <li><strong>1974:</strong> Découverte de Sagittarius A*, un trou noir supermassif au centre</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>🌟 Caractéristiques Principales</h3>
+                        <ul>
+                            <li><strong>Type:</strong> Galaxie spirale barrée</li>
+                            <li><strong>Diamètre:</strong> 100 000 à 200 000 années-lumière</li>
+                            <li><strong>Épaisseur:</strong> 1 000 à 2 000 années-lumière</li>
+                            <li><strong>Étoiles:</strong> 100-200 milliards</li>
+                            <li><strong>Âge:</strong> 13,6 milliards d'années</li>
+                            <li><strong>Centre:</strong> Trou noir supermassif (Sagittarius A*)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="margin-top:30px;padding:20px;background:rgba(255,255,100,0.1);border-left:4px solid #ffff64;border-radius:5px;">
+                    <h3>☀️ Notre Position</h3>
+                    <p>Notre Soleil se trouve à environ 26 000 années-lumière du centre galactique, dans le bras d'Orion. Il tourne autour du centre à une vitesse d'environ 230 km/s et tourne faire une révolution complète (une année galactique).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+    <script src="milky-way-3d.js"></script>
+    <script>
+        function resetView() {
+            if (galaxyCamera) {
+                galaxyCamera.position.set(0, 50000, 50000);
+                galaxyScene.rotation.set(0, 0, 0);
+                console.log('Vue réinitialisée');
+            }
+        }
+
+        function toggleAnimation() {
+            console.log('Animation toggled (à implémenter)');
+        }
+
+        function showGalaxyHistory() {
+            const modal = document.getElementById('galaxyHistoryModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeGalaxyHistory() {
+            const modal = document.getElementById('galaxyHistoryModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('galaxyHistoryModal');
+            if (modal && e.target === modal) {
+                closeGalaxyHistory();
+            }
+        });
+    </script>
+</body>
+</html>

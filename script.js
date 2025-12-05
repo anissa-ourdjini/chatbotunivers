@@ -164,10 +164,12 @@ const astronomyKnowledge = {
             image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/400px-Saturn_during_Equinox.jpg"
         }
     },
+    // NOTE: Base de données réduite pour démonstration
+    // Les réponses sont maintenant générées dynamiquement via API
     questions_frequentes: {
-        "Combien de planètes": {
-            text: "Il y a 8 planètes dans notre système solaire: Mercure, Vénus, Terre, Mars, Jupiter, Saturne, Uranus et Neptune. Pluton a été reclassifiée en planète naine en 2006.",
-            image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop"
+        "Y a-t-il de la vie sur Mars": {
+            text: "[Réponse générée automatiquement via IA]",
+            image: "auto"
         },
         "Quelle est la plus grande": {
             text: "Jupiter est la plus grande planète du système solaire, avec un diamètre de 139,820 km. Elle pourrait contenir 1,300 Terres!",
@@ -212,6 +214,36 @@ const astronomyKnowledge = {
         "Qu'est-ce qu'un trou noir": {
             text: "Un trou noir est une région de l'espace-temps où la gravité est si intense qu'aucune matière, pas même la lumière, ne peut s'en échapper après franchir son horizon.",
             image: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=400&h=300&fit=crop"
+        },
+        "Y a-t-il de la vie sur Mars": {
+            text: "🔴 VIE SUR MARS\n\nCe que nous savons:\n• Aucune vie intelligente n'a été détectée sur Mars\n• Mars a eu de l'eau liquide par le passé (rivières, lacs)\n• Des microbes fossiles pourraient avoir existé il y a des milliards d'années\n\nRecherche actuelle:\n• Les rovers comme Curiosity et Perseverance recherchent des signatures chimiques de vie passée\n• Les conditions actuelles sont très hostiles (température -65°C, faible atmosphère)\n• La radiation à la surface est intense\n\nFuture exploration:\n• Les futures missions humaines pourraient rechercher des fossiles microbiens\n• La colonisation future pourrait créer des habitats pour la vie\n• Des laboratoires souterrains pourraient protéger les microorganismes des radiations",
+            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/400px-OSIRIS_Mars_true_color.jpg"
+        },
+        "Y a-t-il une vie": {
+            text: "🌍 LA VIE DANS L'UNIVERS\n\nSur Terre:\n• Vie très diverse: bactéries, plantes, animaux, humains\n• Environ 8,7 millions d'espèces estimées\n• Évolution pendant 3,8 milliards d'années\n\nAilleurs dans notre système solaire:\n• Mars: Aucune vie actuellement détectée\n• Europe (lune de Jupiter): Océan souterrain potentiel\n• Encelade (lune de Saturne): Geyser d'eau détectés\n• Titàn (lune de Saturne): Atmosphère épaisse, lacs d'hydrocarbures\n\nDans l'univers:\n• Plusieurs milliards de planètes potentiellement habitables\n• Programme SETI: Écoute les signaux radio extraterrestres\n• Équation de Drake: Estime le nombre de civilisations communicantes\n• Paradoxe de Fermi: Où sont-ils si la vie est commune?",
+            image: "https://images.unsplash.com/photo-1462331940975-31f4c1838cda?w=400&h=300&fit=crop"
+        }
+    },
+    general_topics: {
+        "vie": {
+            text: "🧬 LA VIE\n\nDéfinition:\nLa vie est une caractéristique distinctive de la matière vivante caractérisée par:\n• Métabolisme: Conversion de nutriments en énergie\n• Croissance: Augmentation de taille et de complexité\n• Reproduction: Production de descendants\n• Adaptation: Évolution face aux changements environnementaux\n• Homéostasie: Maintien de l'équilibre interne\n\nOrigine sur Terre:\n• Il y a environ 3,8 milliards d'années\n• Probablement dans les océans\n• Premiers organismes: Procaryotes (bactéries)\n• Eucaryotes apparus il y a 2,7 milliards d'années\n\nDiversité de la vie:\n• Microorganismes: Bactéries, archées, protozoaires\n• Plantes: Algues, mousses, fougères, plantes à fleurs\n• Animaux: Invertébrés, vertébrés, mammifères\n• Humains: Homo sapiens",
+            image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop"
+        },
+        "biologie": {
+            text: "🔬 BIOLOGIE\n\nLa biologie est l'étude scientifique des êtres vivants et des processus de la vie.\n\nBranches principales:\n• Biologie cellulaire: Étude des cellules\n• Génétique: Étude des gènes et de l'hérédité\n• Écologie: Étude des interactions avec l'environnement\n• Botanique: Étude des plantes\n• Zoologie: Étude des animaux\n• Microbiologie: Étude des microorganismes\n• Biologie marine: Étude de la vie aquatique\n• Biologie évolutive: Étude de l'évolution\n\nConcepts clés:\n• ADN: Support de l'information génétique\n• Évolution: Adaptation des espèces au fil du temps\n• Écosystème: Ensemble des organismes et leur environnement\n• Chaîne alimentaire: Flux d'énergie entre organismes",
+            image: "https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&h=300&fit=crop"
+        },
+        "histoire": {
+            text: "📚 L'HISTOIRE\n\nL'histoire est l'étude des événements passés de l'humanité.\n\nPériodes majeures:\n• Préhistoire: Avant l'écriture (jusqu'à -3200)\n• Antiquité: Civilisations anciennes (Égypte, Grèce, Rome)\n• Moyen Âge: V-XV siècles\n• Renaissance: XV-XVI siècles\n• Époque moderne: XVII-XVIII siècles\n• Époque contemporaine: XIX siècle à nos jours\n\nCivilisations importantes:\n• Mésopotamie: Premiers États-cités\n• Égypte antique: Pyramides et pharaons\n• Grèce antique: Démocratie et philosophie\n• Empire romain: Droit et gouvernance\n• Civilisations précolombienne: Mayas, Aztèques, Incas\n• Civilisations asiatiques: Chine, Inde, Japon",
+            image: "https://images.unsplash.com/photo-1456300348e86d1f4f5cc6b348bc9a8"
+        },
+        "géographie": {
+            text: "🌍 GÉOGRAPHIE\n\nLa géographie est l'étude de la Terre et de ses habitants.\n\nBranches:\n• Géographie physique: Continents, océans, montagnes, climat\n• Géographie humaine: Populations, cultures, économie, politique\n• Géographie urbaine: Villes et urbanisation\n• Géographie économique: Commerce et ressources\n\nCaractéristiques de la Terre:\n• Diamètre équatorial: 12 756 km\n• Diamètre polaire: 12 714 km\n• Superficie: 510 millions de km²\n• Océans: Couvrent 71% de la surface\n• Continents: 7 (Afrique, Amérique du Nord, Amérique du Sud, Asie, Europe, Océanie, Antarctique)\n• Pays: 195 indépendants\n• Population: Plus de 8 milliards de personnes",
+            image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=300&fit=crop"
+        },
+        "technologie": {
+            text: "💻 TECHNOLOGIE\n\nLa technologie est l'application pratique des sciences pour résoudre des problèmes.\n\nDomaines clés:\n• Informatique: Ordinateurs, logiciels, programmation\n• Télécommunications: Téléphones, internet, satellites\n• Énergie: Électricité, énergies renouvelables\n• Transports: Voitures, avions, trains, fusées\n• Biotechnologie: Modification génétique, santé\n• Nanotechnologie: Manipulation à l'échelle atomique\n• Robotique: Machines autonomes\n• Intelligence Artificielle: Apprentissage machine, réseaux neuronaux\n\nRévolutions technologiques:\n• 1ère: Mécanisation (1760-1840)\n• 2ème: Électricité (1870-1914)\n• 3ème: Électronique et informatique (1960-2000)\n• 4ème: IA et IoT (2000-présent)",
+            image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"
         }
     }
 };
@@ -289,13 +321,23 @@ function getChatbotResponse(userInput) {
         }
     }
     
-    // Vérifications pour les questions fréquentes
+    // Vérifications pour les questions fréquentes (incluant "Vie sur Mars")
     for (const [question, answer] of Object.entries(astronomyKnowledge.questions_frequentes)) {
         const questionScore = calculateSimilarity(input, question);
         if (questionScore > 0.4 && questionScore > bestScore) {
             bestScore = questionScore;
-            bestResponse = `📚 ${answer.text}`;
+            bestResponse = answer.text;
             bestImage = answer.image;
+        }
+    }
+    
+    // Vérifications pour les sujets généraux (Vie, Biologie, Histoire, Géographie, Technologie)
+    for (const [topic, topicData] of Object.entries(astronomyKnowledge.general_topics)) {
+        const topicScore = calculateSimilarity(input, topic);
+        if (topicScore > 0.5 && topicScore > bestScore) {
+            bestScore = topicScore;
+            bestResponse = topicData.text;
+            bestImage = topicData.image;
         }
     }
     
@@ -402,7 +444,7 @@ function getChatbotResponse(userInput) {
     
     // Réponse par défaut améliorée
     return {
-        text: `Je suis désolé, je n'ai pas trouvé d'informations précises sur votre question. 🤔\n\nJe peux vous parler de:\n• Les 8 planètes du système solaire (Mercure, Vénus, Terre, Mars, Jupiter, Saturne, Uranus, Neptune)\n• Le Soleil, la Lune, et les satellites\n• Les galaxies et l'univers\n• Les étoiles et les phénomènes célestes\n• La Voie Lactée et les concepts d'astronomie\n• Les trous noirs, nébuleuses, comètes et astéroïdes\n\nN'hésitez pas à reformuler votre question ou à être plus précis!`,
+        text: `Je suis désolé, je n'ai pas trouvé d'informations précises sur votre question. 🤔\n\nCependant, je peux vous parler de nombreux sujets:\n\n📚 ASTRONOMIE:\n• Les 8 planètes du système solaire (Mercure, Vénus, Terre, Mars, Jupiter, Saturne, Uranus, Neptune)\n• Concepts: Galaxies, étoiles, trous noirs, nébuleuses, comètes, astéroïdes\n• Questions comme: "Y a-t-il de la vie sur Mars?" ou "Y a-t-il une vie ailleurs?"\n\n🌍 SUJETS GÉNÉRAUX:\n• Vie et biologie\n• Histoire et civilisations\n• Géographie et continents\n• Technologie et innovation\n• Phénomènes naturels\n\nN'hésitez pas à reformuler votre question ou à être plus précis! Je suis ici pour vous aider et vous informer.`,
         image: 'https://images.unsplash.com/photo-1462331940975-31f4c1838cda?w=400&h=300&fit=crop'
     };
 }
@@ -421,7 +463,7 @@ async function fetchImageForQuery(query) {
     }
 }
 
-// Gestion du chat
+// Gestion du chat amélioré avec NASA et faits historiques
 async function sendMessage() {
     const userInput = document.getElementById('userInput').value.trim();
     if (!userInput) return;
@@ -443,26 +485,39 @@ async function sendMessage() {
         const data = await res.json();
         const textEl = tempBotEl.querySelector('.message-text');
         if (res.ok && data.reply) {
-            if (textEl) textEl.textContent = data.reply;
-            // essayer de récupérer une image pertinente depuis Wikimedia Commons
+            let fullText = data.reply;
+            
+            // Ajouter les faits et expéditions si disponibles
+            if (data.facts && data.facts.length > 0) {
+                fullText += '\n\n📚 **Faits complémentaires:**\n' + data.facts.map(f => `• ${f}`).join('\n');
+            }
+            if (data.expeditions && data.expeditions.length > 0) {
+                fullText += '\n\n🚀 **Missions et expéditions:**\n' + data.expeditions.map(e => `• ${e.name} (${e.year}): ${e.details}`).join('\n');
+            }
+            
+            if (textEl) textEl.textContent = fullText;
+            
+            // Récupérer et afficher l'image appropriée
             try {
-                const imgUrl = await fetchImageForQuery(userInput);
+                // Priorité: utiliser l'image du serveur ou chercher une nouvelle
+                const imgUrl = data.imageUrl || await fetchImageForQuery(userInput);
                 if (imgUrl) {
                     const img = document.createElement('img');
                     img.src = imgUrl;
-                    img.alt = 'Image de réponse';
+                    img.alt = 'Image pertinente';
                     img.style.maxWidth = '100%';
                     img.style.borderRadius = '8px';
                     img.style.marginTop = '8px';
+                    img.onerror = function() { this.style.display = 'none'; };
                     tempBotEl.appendChild(img);
                 }
             } catch (err) {
-                console.warn('Image fetch failed after backend reply:', err && err.toString());
+                console.warn('Image fetch failed:', err && err.toString());
             }
             return;
         }
 
-        // si API répond mais sans reply, on tombe sur le fallback
+        // Si API répond mais sans reply, fallback local
         console.warn('Backend returned no reply, falling back to local knowledge', data);
     } catch (err) {
         console.warn('Erreur fetch /api/chat, fallback to local:', err && err.toString());
@@ -473,7 +528,7 @@ async function sendMessage() {
         const response = getChatbotResponse(userInput);
         const textEl = tempBotEl.querySelector('.message-text');
         if (textEl) textEl.textContent = response.text;
-        // premièrement, essayer d'obtenir une image pertinente depuis Wikimedia
+        // Récupérer une image pertinente depuis Wikimedia
         try {
             const imgUrl = await fetchImageForQuery(userInput);
             if (imgUrl) {
